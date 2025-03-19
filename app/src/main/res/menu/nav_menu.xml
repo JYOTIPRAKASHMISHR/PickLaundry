@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <item
+        android:id="@+id/nav_home"
+        android:title="Home"
+        android:icon="@drawable/home"/>
+
+    <item
+        android:id="@+id/my_request"
+        android:title="My Request"
+        android:icon="@drawable/request"/>  <!-- Replace with correct drawable -->
+
+    <item
+        android:id="@+id/nav_orders"
+        android:title="My Orders"
+        android:icon="@drawable/myorder"/>
+
+    <item
+        android:id="@+id/nav_contact"
+        android:title="Contact Us"
+        android:icon="@drawable/contact"/>
+
+    <item
+        android:id="@+id/setting"
+        android:title="Settings"
+        android:icon="@drawable/setings"/>  <!-- Corrected duplicate icon -->
+
+    <item
+        android:id="@+id/nav_profile"
+        android:title="Profile"
+        android:icon="@drawable/profile1"/>
+
+</menu>

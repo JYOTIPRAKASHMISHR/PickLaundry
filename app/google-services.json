@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "374996997845",
+    "project_id": "ieee-signup",
+    "storage_bucket": "ieee-signup.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:374996997845:android:58af717923b2dc50c6b45c",
+        "android_client_info": {
+          "package_name": "com.example.picklaundry"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBJ6JaKENs9eg-T_vUxHUPYbb9moXYTf-8"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
