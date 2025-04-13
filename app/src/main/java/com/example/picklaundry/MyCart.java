@@ -6,29 +6,29 @@ import android.util.Log;
 import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 public class MyCart extends AppCompatActivity {
-    private static final String TAG = "MyCartActivity";
+    private static final String TAG = "MyCart";
 
+    // TextViews
     private TextView tvCategory, tvOrderId, tvPants, tvShirts, tvOthers, tvTotalPieces, tvTotalPrice, tvAddress, tvEmail, tvGender, tvMobile, tvName;
     private TextView tvIsConfirm, tvIsStored, tvIsDelivered, tvIsOutForDelivery, tvIsOutForPickup, tvIsPaymentDone;
 
+    // Firebase references
     private DatabaseReference orderRef, statusRef;
-    private String orderId, category;
+
+    // Intent extras
+    private String userId, orderId, category;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_mycart);
 
-        Log.d(TAG, "Initializing UI components...");
+        Log.d(TAG, "onCreate: Initializing...");
 
-        // Initialize TextViews for Order Details
+        // Initialize views
         tvCategory = findViewById(R.id.tvCategory);
         tvOrderId = findViewById(R.id.tvOrderId);
         tvPants = findViewById(R.id.tvPants);
@@ -42,7 +42,6 @@ public class MyCart extends AppCompatActivity {
         tvMobile = findViewById(R.id.tvMobile);
         tvName = findViewById(R.id.tvName);
 
-        // Initialize TextViews for Order Status
         tvIsConfirm = findViewById(R.id.tvOrderConfirmed);
         tvIsStored = findViewById(R.id.tvOrderSuccessful);
         tvIsDelivered = findViewById(R.id.tvDelivered);
@@ -51,114 +50,123 @@ public class MyCart extends AppCompatActivity {
         tvIsPaymentDone = findViewById(R.id.tvPaymentSuccessful);
 
         // Get Intent data
+        userId = getIntent().getStringExtra("userId");
         orderId = getIntent().getStringExtra("orderId");
         category = getIntent().getStringExtra("category");
 
-        if (orderId == null || category == null) {
-            Log.e(TAG, "Error: Order ID or Category is NULL! Exiting...");
+        Log.d(TAG, "Received userId: " + userId);
+        Log.d(TAG, "Received orderId: " + orderId);
+        Log.d(TAG, "Received category: " + category);
+
+        if (userId == null || orderId == null || category == null) {
+            Log.e(TAG, "Missing intent data!");
             return;
         }
 
-        Log.d(TAG, "Received Order ID: " + orderId);
-        Log.d(TAG, "Received Category: " + category);
+        // Firebase references
+        orderRef = FirebaseDatabase.getInstance().getReference("Order_request")
+                .child(userId)
+                .child(category)
+                .child(orderId);
 
-        // Get Firebase references
-        orderRef = FirebaseDatabase.getInstance().getReference("Order_request").child(category).child(orderId);
-        statusRef = FirebaseDatabase.getInstance().getReference("OrderStatus").child(orderId);
+        statusRef = FirebaseDatabase.getInstance().getReference("OrderStatus")
+                .child(orderId);
 
-        // Load data from Firebase
         loadOrderDetails();
         loadOrderStatus();
     }
 
-    // Load Order Details from Firebase
     private void loadOrderDetails() {
-        Log.d(TAG, "Fetching order details from Firebase...");
+        Log.d(TAG, "Fetching order details from: " + orderRef.toString());
 
         orderRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.exists()) {
-                    Log.e(TAG, "Error: Order ID " + orderId + " not found in Order_request!");
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d(TAG, "onDataChange: Data retrieved for order details");
+
+                if (!snapshot.exists()) {
+                    Log.e(TAG, "Order details not found at given path.");
                     return;
                 }
 
-                Log.d(TAG, "Order details found. Updating UI...");
+                Integer othersQuantity = snapshot.child("OthersQuantity").getValue(Integer.class);
+                Integer pantsQuantity = snapshot.child("PantsQuantity").getValue(Integer.class);
+                Integer shirtsQuantity = snapshot.child("ShirtQuantity").getValue(Integer.class);
+                Integer totalPieces = snapshot.child("TotalPieces").getValue(Integer.class);
+                Integer totalPrice = snapshot.child("TotalPrice").getValue(Integer.class);
+                String address = snapshot.child("address").getValue(String.class);
+                String email = snapshot.child("email").getValue(String.class);
+                String gender = snapshot.child("gender").getValue(String.class);
+                String mobile = snapshot.child("mobile").getValue(String.class);
+                String name = snapshot.child("name").getValue(String.class);
 
-                Integer othersQuantity = dataSnapshot.child("OthersQuantity").getValue(Integer.class);
-                Integer pantsQuantity = dataSnapshot.child("PantsQuantity").getValue(Integer.class);
-                Integer shirtsQuantity = dataSnapshot.child("ShirtQuantity").getValue(Integer.class);
-                Integer totalPieces = dataSnapshot.child("TotalPieces").getValue(Integer.class);
-                Integer totalPrice = dataSnapshot.child("TotalPrice").getValue(Integer.class);
-                String address = dataSnapshot.child("address").getValue(String.class);
-                String email = dataSnapshot.child("email").getValue(String.class);
-                String gender = dataSnapshot.child("gender").getValue(String.class);
-                String mobile = dataSnapshot.child("mobile").getValue(String.class);
-                String name = dataSnapshot.child("name").getValue(String.class);
+                Log.d(TAG, "Order Details Loaded: "
+                        + "\nOthers: " + othersQuantity
+                        + "\nPants: " + pantsQuantity
+                        + "\nShirts: " + shirtsQuantity
+                        + "\nTotalPieces: " + totalPieces
+                        + "\nTotalPrice: " + totalPrice);
 
-                // Update UI
                 tvCategory.setText("📌 Category: " + category);
                 tvOrderId.setText("📦 Order ID: " + orderId);
-                tvPants.setText("👔 Pants: " + (pantsQuantity != null ? pantsQuantity : 0));
+                tvPants.setText("👖 Pants: " + (pantsQuantity != null ? pantsQuantity : 0));
                 tvShirts.setText("👕 Shirts: " + (shirtsQuantity != null ? shirtsQuantity : 0));
                 tvOthers.setText("🧥 Others: " + (othersQuantity != null ? othersQuantity : 0));
                 tvTotalPieces.setText("📊 Total Pieces: " + (totalPieces != null ? totalPieces : 0));
                 tvTotalPrice.setText("💰 Total Price: ₹" + (totalPrice != null ? totalPrice : 0));
-                tvAddress.setText("📍 Address: \n" + (address != null ? address : "N/A"));
+                tvAddress.setText("📍 Address:\n" + (address != null ? address : "N/A"));
                 tvEmail.setText("📧 Email: " + (email != null ? email : "N/A"));
-                tvGender.setText("👨 Gender: " + (gender != null ? gender : "N/A"));
-                tvMobile.setText("📞 Mobile: " + (mobile != null ? mobile : "N/A"));
+                tvGender.setText("👤 Gender: " + (gender != null ? gender : "N/A"));
+                tvMobile.setText("📱 Mobile: " + (mobile != null ? mobile : "N/A"));
                 tvName.setText("🙋 Name: " + (name != null ? name : "N/A"));
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e(TAG, "Database error: " + databaseError.getMessage());
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Order details loading cancelled: " + error.getMessage());
             }
         });
     }
 
-    // Load Order Status from Firebase
     private void loadOrderStatus() {
-        Log.d(TAG, "Fetching order status from Firebase...");
+        Log.d(TAG, "Fetching order status from: " + statusRef.toString());
 
         statusRef.addValueEventListener(new ValueEventListener() {
             @Override
-            public void onDataChange(@NonNull DataSnapshot dataSnapshot) {
-                if (!dataSnapshot.exists()) {
-                    Log.e(TAG, "Error: Order ID " + orderId + " not found in OrderStatus!");
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                Log.d(TAG, "onDataChange: Order status snapshot received");
+
+                if (!snapshot.exists()) {
+                    Log.e(TAG, "Order status not found at path.");
                     return;
                 }
 
-                Log.d(TAG, "Order status found. Updating UI...");
-
-                setStatusColor(tvIsConfirm, dataSnapshot.child("isConfirm").getValue(Boolean.class));
-                setStatusColor(tvIsStored, dataSnapshot.child("isStored").getValue(Boolean.class));
-                setStatusColor(tvIsDelivered, dataSnapshot.child("isdelivered").getValue(Boolean.class));
-                setStatusColor(tvIsOutForDelivery, dataSnapshot.child("isoutfordelivery").getValue(Boolean.class));
-                setStatusColor(tvIsOutForPickup, dataSnapshot.child("isoutforpickup").getValue(Boolean.class));
-                setStatusColor(tvIsPaymentDone, dataSnapshot.child("ispaymentdone").getValue(Boolean.class));
+                setStatusColor(tvIsConfirm, snapshot.child("isConfirm").getValue(Boolean.class));
+                setStatusColor(tvIsStored, snapshot.child("isStored").getValue(Boolean.class));
+                setStatusColor(tvIsDelivered, snapshot.child("isdelivered").getValue(Boolean.class));
+                setStatusColor(tvIsOutForDelivery, snapshot.child("isoutfordelivery").getValue(Boolean.class));
+                setStatusColor(tvIsOutForPickup, snapshot.child("isoutforpickup").getValue(Boolean.class));
+                setStatusColor(tvIsPaymentDone, snapshot.child("ispaymentdone").getValue(Boolean.class));
             }
 
             @Override
-            public void onCancelled(@NonNull DatabaseError databaseError) {
-                Log.e(TAG, "Database error: " + databaseError.getMessage());
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e(TAG, "Order status loading cancelled: " + error.getMessage());
             }
         });
     }
 
-    // Helper method to set text and color dynamically
     private void setStatusColor(TextView textView, Boolean status) {
-        String fieldName = textView.getText().toString().split(":")[0];
+        String label = textView.getText().toString().split(":")[0];
 
         if (status != null && status) {
-            textView.setText("✅ " + fieldName + ": Yes");
+            textView.setText("✅ " + label + ": Yes");
             textView.setTextColor(Color.GREEN);
-            Log.d(TAG, fieldName + " is TRUE (✅)");
+            Log.d(TAG, label + " → TRUE ✅");
         } else {
-            textView.setText("❌ " + fieldName + ": No");
+            textView.setText("❌ " + label + ": No");
             textView.setTextColor(Color.RED);
-            Log.d(TAG, fieldName + " is FALSE (❌)");
+            Log.d(TAG, label + " → FALSE ❌");
         }
     }
 }

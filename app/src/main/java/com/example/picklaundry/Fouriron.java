@@ -107,7 +107,7 @@ public class Fouriron extends AppCompatActivity {
         Toast.makeText(Fouriron.this, message, Toast.LENGTH_SHORT).show();
     }
 
-    public void Done2(View view) {
+    public void Done1(View view) {
         Intent intent = new Intent(this, MainActivity.class);
         startActivity(intent);
         if (latestOrderId == null) {

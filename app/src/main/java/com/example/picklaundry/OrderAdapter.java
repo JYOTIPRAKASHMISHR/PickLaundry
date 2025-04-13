@@ -2,6 +2,7 @@ package com.example.picklaundry;
 
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -38,10 +39,13 @@ public class OrderAdapter extends RecyclerView.Adapter<OrderAdapter.ViewHolder> 
         // Open Mycart activity with order details on item click
         holder.itemView.setOnClickListener(v -> {
             Intent intent = new Intent(context, MyCart.class);
+            intent.putExtra("userId", order.getUserId()); // Must use getter from OrderModel
             intent.putExtra("orderId", order.getOrderId());
             intent.putExtra("category", order.getCategory());
+            Log.d("AdapterClick", "Sending → userId: " + order.getUserId());
             context.startActivity(intent);
         });
+
     }
 
     @Override

@@ -43,30 +43,35 @@ public class Myorder extends AppCompatActivity {
     }
 
     private void fetchOrders() {
-        databaseReference.addValueEventListener(new ValueEventListener() {  // Real-time listener
+        databaseReference.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 orderList.clear();
 
-                for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
-                    String category = categorySnapshot.getKey(); // Category name (e.g., "IronOrders", "Washandfolds")
+                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
+                    String userId = userSnapshot.getKey();  // Use this variable
 
-                    for (DataSnapshot orderSnapshot : categorySnapshot.getChildren()) {
-                        String orderId = orderSnapshot.getKey();
-                        String name = orderSnapshot.child("name").getValue(String.class);
-                        String totalPrice = "0";
+                    for (DataSnapshot categorySnapshot : userSnapshot.getChildren()) {
+                        String category = categorySnapshot.getKey();
 
-                        if (orderSnapshot.child("TotalPrice").exists()) {
-                            Long totalPriceLong = orderSnapshot.child("TotalPrice").getValue(Long.class);
-                            totalPrice = totalPriceLong != null ? String.valueOf(totalPriceLong) : "0";
-                        }
+                        for (DataSnapshot orderSnapshot : categorySnapshot.getChildren()) {
+                            String orderId = orderSnapshot.getKey();
+                            String name = orderSnapshot.child("name").getValue(String.class);
+                            String totalPrice = "0";
 
-                        if (orderId != null && name != null) {
-                            OrderModel order = new OrderModel(orderId, name, totalPrice, category);
-                            orderList.add(order);
+                            if (orderSnapshot.child("TotalPrice").exists()) {
+                                Long totalPriceLong = orderSnapshot.child("TotalPrice").getValue(Long.class);
+                                totalPrice = totalPriceLong != null ? String.valueOf(totalPriceLong) : "0";
+                            }
 
-                            // Debugging Log
-                            Log.d("FirebaseData", "Category: " + category + " | Order ID: " + orderId + " | Name: " + name + " | Price: " + totalPrice);
+                            if (orderId != null && name != null) {
+                                // Correctly use userId here
+                                OrderModel order = new OrderModel(orderId, name, totalPrice, category, userId);
+                                orderList.add(order);
+
+                                Log.d("FirebaseData", "User: " + userId + " | Category: " + category +
+                                        " | Order ID: " + orderId + " | Name: " + name + " | Price: " + totalPrice);
+                            }
                         }
                     }
                 }
