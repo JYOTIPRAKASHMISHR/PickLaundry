@@ -3,6 +3,7 @@ package com.example.picklaundry;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,8 +35,8 @@ public class Fourdryclean extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         dryCleanRef = database.getReference("DryCleanOrders");
-        orderAllRef = database.getReference("Order_all").child("DryCleanOrders");
-        orderRequestRef = database.getReference("Order_request").child("DryCleanOrders");
+        orderAllRef = database.getReference("Order_all");
+        orderRequestRef = database.getReference("Order_request");
 
         Log.d(TAG, "Fetching order details...");
         fetchOrderDetails();
@@ -62,7 +63,7 @@ public class Fourdryclean extends AppCompatActivity {
                 if (snapshot.exists()) {
                     DataSnapshot latestOrder = null;
                     for (DataSnapshot orderSnapshot : snapshot.getChildren()) {
-                        latestOrder = orderSnapshot; // Get the most recent order
+                        latestOrder = orderSnapshot;
                     }
 
                     if (latestOrder != null) {
@@ -108,6 +109,8 @@ public class Fourdryclean extends AppCompatActivity {
     }
 
     public void Done1(View view) {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
         if (latestOrderId == null) {
             showToast("No order to process.");
             Log.w(TAG, "No latestOrderId available.");
@@ -119,35 +122,42 @@ public class Fourdryclean extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot orderSnapshot) {
                 if (orderSnapshot.exists()) {
                     Object orderData = orderSnapshot.getValue();
+                    String userId = orderSnapshot.child("userId").getValue(String.class);
 
-                    // Save to "Order_all/DryCleanOrders"
-                    orderAllRef.child(latestOrderId).setValue(orderData)
-                            .addOnCompleteListener(task1 -> {
-                                if (task1.isSuccessful()) {
-                                    Log.d(TAG, "Order saved to Order_all/DryCleanOrders.");
+                    if (userId == null || userId.isEmpty()) {
+                        showToast("User ID missing in order data.");
+                        Log.e(TAG, "userId is null or empty");
+                        return;
+                    }
 
-                                    // Save to "Order_request/DryCleanOrders"
-                                    orderRequestRef.child(latestOrderId).setValue(orderData)
-                                            .addOnCompleteListener(task2 -> {
-                                                if (task2.isSuccessful()) {
-                                                    showToast("Order saved to both databases.");
-                                                    Log.d(TAG, "Order saved to Order_request/DryCleanOrders.");
+                    DatabaseReference userOrderAllRef = orderAllRef.child(userId).child("DryCleanOrders").child(latestOrderId);
+                    DatabaseReference userOrderRequestRef = orderRequestRef.child(userId).child("DryCleanOrders").child(latestOrderId);
 
-                                                    // Remove from "DryCleanOrders" after saving
-                                                    dryCleanRef.child(latestOrderId).removeValue()
-                                                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Order removed from DryCleanOrders."))
-                                                            .addOnFailureListener(e -> Log.e(TAG, "Failed to remove order: " + e.getMessage()));
-                                                } else {
-                                                    showToast("Saved to Order_all but failed in Order_request.");
-                                                    Log.e(TAG, "Failed to save order to Order_request.");
-                                                }
-                                            });
+                    // Save to Order_all
+                    userOrderAllRef.setValue(orderData).addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+                            Log.d(TAG, "Order saved to Order_all under userId.");
 
+                            // Save to Order_request
+                            userOrderRequestRef.setValue(orderData).addOnCompleteListener(task2 -> {
+                                if (task2.isSuccessful()) {
+                                    showToast("Order moved successfully.");
+                                    Log.d(TAG, "Order saved to Order_request under userId.");
+
+                                    // Remove from original
+                                    dryCleanRef.child(latestOrderId).removeValue()
+                                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Order removed from DryCleanOrders."))
+                                            .addOnFailureListener(e -> Log.e(TAG, "Failed to remove order: " + e.getMessage()));
                                 } else {
-                                    showToast("Failed to save to Order_all.");
-                                    Log.e(TAG, "Failed to save order to Order_all.");
+                                    showToast("Failed to save to Order_request.");
+                                    Log.e(TAG, "Error saving to Order_request.");
                                 }
                             });
+                        } else {
+                            showToast("Failed to save to Order_all.");
+                            Log.e(TAG, "Error saving to Order_all.");
+                        }
+                    });
                 } else {
                     showToast("Order not found.");
                     Log.w(TAG, "Order not found with ID: " + latestOrderId);

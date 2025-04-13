@@ -6,6 +6,7 @@ import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.os.Bundle;
+import android.util.Log;
 import android.widget.Toast;
 
 import com.google.firebase.database.DataSnapshot;
@@ -36,31 +37,36 @@ public class Myorder extends AppCompatActivity {
         orderAdapter = new OrderAdapter(this, orderList);
         recyclerView.setAdapter(orderAdapter);
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("Order_request").child("Washandfolds");
+        databaseReference = FirebaseDatabase.getInstance().getReference("Order_request");
 
         fetchOrders();
     }
 
     private void fetchOrders() {
-        DatabaseReference rootRef = FirebaseDatabase.getInstance().getReference("Order_request");
-
-        rootRef.addListenerForSingleValueEvent(new ValueEventListener() {
+        databaseReference.addValueEventListener(new ValueEventListener() {  // Real-time listener
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 orderList.clear();
 
                 for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
-                    String category = categorySnapshot.getKey(); // Get the category name (e.g., "Washandfolds")
+                    String category = categorySnapshot.getKey(); // Category name (e.g., "IronOrders", "Washandfolds")
 
                     for (DataSnapshot orderSnapshot : categorySnapshot.getChildren()) {
                         String orderId = orderSnapshot.getKey();
                         String name = orderSnapshot.child("name").getValue(String.class);
-                        Long totalPriceLong = orderSnapshot.child("TotalPrice").getValue(Long.class);
-                        String totalPrice = totalPriceLong != null ? String.valueOf(totalPriceLong) : "0";
+                        String totalPrice = "0";
+
+                        if (orderSnapshot.child("TotalPrice").exists()) {
+                            Long totalPriceLong = orderSnapshot.child("TotalPrice").getValue(Long.class);
+                            totalPrice = totalPriceLong != null ? String.valueOf(totalPriceLong) : "0";
+                        }
 
                         if (orderId != null && name != null) {
                             OrderModel order = new OrderModel(orderId, name, totalPrice, category);
                             orderList.add(order);
+
+                            // Debugging Log
+                            Log.d("FirebaseData", "Category: " + category + " | Order ID: " + orderId + " | Name: " + name + " | Price: " + totalPrice);
                         }
                     }
                 }

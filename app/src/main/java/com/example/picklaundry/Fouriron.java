@@ -3,6 +3,7 @@ package com.example.picklaundry;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,8 +35,8 @@ public class Fouriron extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         ironRef = database.getReference("IronOrders");
-        orderAllRef = database.getReference("Order_all").child("IronOrders");
-        orderRequestRef = database.getReference("Order_request").child("IronOrders");
+        orderAllRef = database.getReference("Order_all");
+        orderRequestRef = database.getReference("Order_request");
 
         Log.d(TAG, "Fetching order details...");
         fetchOrderDetails();
@@ -62,7 +63,7 @@ public class Fouriron extends AppCompatActivity {
                 if (snapshot.exists()) {
                     DataSnapshot latestOrder = null;
                     for (DataSnapshot orderSnapshot : snapshot.getChildren()) {
-                        latestOrder = orderSnapshot;  // Get the most recent order
+                        latestOrder = orderSnapshot;  // get last (latest) order
                     }
 
                     if (latestOrder != null) {
@@ -106,7 +107,9 @@ public class Fouriron extends AppCompatActivity {
         Toast.makeText(Fouriron.this, message, Toast.LENGTH_SHORT).show();
     }
 
-    public void Done1(View view) {
+    public void Done2(View view) {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
         if (latestOrderId == null) {
             showToast("No order to process.");
             return;
@@ -117,28 +120,37 @@ public class Fouriron extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot orderSnapshot) {
                 if (orderSnapshot.exists()) {
                     Object orderData = orderSnapshot.getValue();
+                    String userId = orderSnapshot.child("userId").getValue(String.class);
 
-                    orderAllRef.child(latestOrderId).setValue(orderData)
-                            .addOnCompleteListener(task1 -> {
-                                if (task1.isSuccessful()) {
-                                    Log.d(TAG, "Order saved to Order_all/IronOrders.");
+                    if (userId == null || userId.isEmpty()) {
+                        showToast("User ID missing in order data.");
+                        return;
+                    }
 
-                                    orderRequestRef.child(latestOrderId).setValue(orderData)
-                                            .addOnCompleteListener(task2 -> {
-                                                if (task2.isSuccessful()) {
-                                                    showToast("Order saved to both databases.");
+                    DatabaseReference userOrderAllRef = orderAllRef.child(userId).child("IronOrders").child(latestOrderId);
+                    DatabaseReference userOrderRequestRef = orderRequestRef.child(userId).child("IronOrders").child(latestOrderId);
 
-                                                    ironRef.child(latestOrderId).removeValue()
-                                                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Order removed from IronOrders."))
-                                                            .addOnFailureListener(e -> Log.e(TAG, "Failed to remove order: " + e.getMessage()));
-                                                } else {
-                                                    showToast("Saved to Order_all but failed in Order_request.");
-                                                }
-                                            });
+                    userOrderAllRef.setValue(orderData).addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+                            Log.d(TAG, "Order saved to Order_all → userId → IronOrders.");
+
+                            userOrderRequestRef.setValue(orderData).addOnCompleteListener(task2 -> {
+                                if (task2.isSuccessful()) {
+                                    showToast("Order saved to both Order_all and Order_request.");
+
+                                    ironRef.child(latestOrderId).removeValue()
+                                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Order removed from IronOrders."))
+                                            .addOnFailureListener(e -> Log.e(TAG, "Failed to remove order: " + e.getMessage()));
                                 } else {
-                                    showToast("Failed to save to Order_all.");
+                                    showToast("Saved to Order_all but failed in Order_request.");
                                 }
                             });
+
+                        } else {
+                            showToast("Failed to save to Order_all.");
+                        }
+                    });
+
                 } else {
                     showToast("Order not found.");
                 }

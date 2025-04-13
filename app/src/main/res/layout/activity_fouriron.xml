@@ -328,7 +328,7 @@
         android:layout_height="wrap_content"
         android:layout_margin="16dp"
         android:backgroundTint="@color/Emerald"
-        android:onClick="Done1"
+        android:onClick="Done2"
         android:text="Done"
         android:textColor="@color/white"
         android:textSize="18sp"

@@ -5,6 +5,7 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.FragmentActivity;
 
 import android.Manifest;
+import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
@@ -67,8 +68,9 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
 
         btnSaveAddress.setOnClickListener(new View.OnClickListener() {
             @Override
-            public void onClick(View v) {
+            public void onClick(View v) {Intent intent = new Intent(LocationPickerActivity.this, RegisterAtivity.class);
                 saveAddressToFirebase();
+                startActivity(intent);
             }
         });
     }

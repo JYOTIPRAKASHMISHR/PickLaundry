@@ -3,6 +3,7 @@ package com.example.picklaundry;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,8 +35,8 @@ public class Fourwashandiron extends AppCompatActivity {
 
         FirebaseDatabase database = FirebaseDatabase.getInstance();
         washAndIronRef = database.getReference("Washandiron");
-        orderAllRef = database.getReference("Order_all").child("Washandiron");
-        orderRequestRef = database.getReference("Order_request").child("Washandiron");
+        orderAllRef = database.getReference("Order_all");
+        orderRequestRef = database.getReference("Order_request");
 
         Log.d(TAG, "Fetching order details...");
         fetchOrderDetails();
@@ -107,6 +108,8 @@ public class Fourwashandiron extends AppCompatActivity {
     }
 
     public void Done(View view) {
+        Intent intent = new Intent(this, MainActivity.class);
+        startActivity(intent);
         if (latestOrderId == null) {
             showToast("No order to process.");
             return;
@@ -117,28 +120,37 @@ public class Fourwashandiron extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot orderSnapshot) {
                 if (orderSnapshot.exists()) {
                     Object orderData = orderSnapshot.getValue();
+                    String userId = orderSnapshot.child("userId").getValue(String.class);
 
-                    orderAllRef.child(latestOrderId).setValue(orderData)
-                            .addOnCompleteListener(task1 -> {
-                                if (task1.isSuccessful()) {
-                                    Log.d(TAG, "Order saved to Order_all/Washandiron.");
+                    if (userId == null || userId.isEmpty()) {
+                        showToast("User ID not found in order data.");
+                        return;
+                    }
 
-                                    orderRequestRef.child(latestOrderId).setValue(orderData)
-                                            .addOnCompleteListener(task2 -> {
-                                                if (task2.isSuccessful()) {
-                                                    showToast("Order saved to both databases.");
+                    DatabaseReference userOrderAllRef = orderAllRef.child(userId).child("Washandiron").child(latestOrderId);
+                    DatabaseReference userOrderRequestRef = orderRequestRef.child(userId).child("Washandiron").child(latestOrderId);
 
-                                                    washAndIronRef.child(latestOrderId).removeValue()
-                                                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Order removed from Washandiron."))
-                                                            .addOnFailureListener(e -> Log.e(TAG, "Failed to remove order: " + e.getMessage()));
-                                                } else {
-                                                    showToast("Saved to Order_all but failed in Order_request.");
-                                                }
-                                            });
+                    userOrderAllRef.setValue(orderData).addOnCompleteListener(task1 -> {
+                        if (task1.isSuccessful()) {
+                            Log.d(TAG, "Order saved to Order_all/userId/Washandiron/orderId");
+
+                            userOrderRequestRef.setValue(orderData).addOnCompleteListener(task2 -> {
+                                if (task2.isSuccessful()) {
+                                    showToast("Order saved under user ID and category.");
+
+                                    washAndIronRef.child(latestOrderId).removeValue()
+                                            .addOnSuccessListener(aVoid -> Log.d(TAG, "Order removed from Washandiron."))
+                                            .addOnFailureListener(e -> Log.e(TAG, "Failed to remove order: " + e.getMessage()));
                                 } else {
-                                    showToast("Failed to save to Order_all.");
+                                    showToast("Saved to Order_all, but failed in Order_request.");
                                 }
                             });
+
+                        } else {
+                            showToast("Failed to save to Order_all.");
+                        }
+                    });
+
                 } else {
                     showToast("Order not found.");
                 }
