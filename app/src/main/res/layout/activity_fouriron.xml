@@ -6,9 +6,9 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="@color/white"
-    tools:context=".Fouriron">
+    tools:context=".Fourwashandiron">
 
-    <!-- Top Card (Title & Logo) -->
+    <!-- Top Card -->
     <androidx.cardview.widget.CardView
         android:id="@+id/topCard"
         android:layout_width="match_parent"
@@ -43,20 +43,19 @@
                 android:layout_marginEnd="8dp"
                 android:src="@drawable/splashscreen"
                 android:contentDescription="App Logo" />
-
         </LinearLayout>
     </androidx.cardview.widget.CardView>
 
-    <!-- Order Details Card (with Payment Method inside) -->
+    <!-- Order Details -->
     <androidx.cardview.widget.CardView
         android:id="@+id/orderDetailsCard"
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_marginHorizontal="12dp"
-        android:layout_marginTop="16dp"
+        android:layout_height="0dp"
+        android:layout_margin="12dp"
         app:cardCornerRadius="16dp"
         app:cardElevation="8dp"
         app:layout_constraintTop_toBottomOf="@id/topCard"
+        app:layout_constraintBottom_toTopOf="@id/doneButton"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:cardBackgroundColor="@android:color/white">
@@ -73,268 +72,130 @@
                 android:divider="?android:attr/dividerVertical"
                 android:showDividers="middle">
 
-                <!-- Order ID -->
-                <TextView
-                    android:id="@+id/orderIdText"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Order ID: "
-                    android:textSize="16sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black" />
+                <!-- User Details -->
+                <TextView android:id="@+id/orderIdText" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Order ID: "
+                    android:textSize="16sp" android:textStyle="bold" android:textColor="@color/black"/>
 
-                <!-- Name -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:id="@+id/nameText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Name:"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
-                </LinearLayout>
+                <TextView android:id="@+id/nameText" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Name:"
+                    android:textSize="16sp" android:textColor="@color/black" android:layout_marginTop="8dp"/>
 
-                <!-- Email -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:id="@+id/emailText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Email:"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
-                </LinearLayout>
+                <TextView android:id="@+id/emailText" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Email:"
+                    android:textSize="16sp" android:textColor="@color/black" android:layout_marginTop="8dp"/>
 
-                <!-- Mobile -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:id="@+id/mobileText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Mobile:"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
-                </LinearLayout>
+                <TextView android:id="@+id/mobileText" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Mobile:"
+                    android:textSize="16sp" android:textColor="@color/black" android:layout_marginTop="8dp"/>
 
-                <!-- Address -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:id="@+id/addressText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Address:"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
-                </LinearLayout>
+                <TextView android:id="@+id/addressText" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Address:"
+                    android:textSize="16sp" android:textColor="@color/black" android:layout_marginTop="8dp"/>
 
-                <!-- Gender -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:id="@+id/genderText"
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Gender:"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
-                </LinearLayout>
+                <TextView android:id="@+id/genderText" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Gender:"
+                    android:textSize="16sp" android:textColor="@color/black" android:layout_marginTop="8dp"/>
 
                 <!-- Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/black"
-                    android:layout_marginVertical="12dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/black" android:layout_marginVertical="12dp"/>
 
-                <!-- Shirts -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
+                <!-- Item Quantities -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
                     android:orientation="horizontal">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Shirts:"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
-                    <TextView
-                        android:id="@+id/shirtQuantity"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Shirts:" android:textSize="16sp"
+                        android:textColor="@color/black"/>
+                    <TextView android:id="@+id/shirtQuantity" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="0"
+                        android:textSize="16sp" android:textColor="@color/black"/>
                 </LinearLayout>
 
-                <!-- Pants -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Pants:"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
-                    <TextView
-                        android:id="@+id/pantsQuantity"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Pants:" android:textSize="16sp"
+                        android:textColor="@color/black"/>
+                    <TextView android:id="@+id/pantsQuantity" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="0"
+                        android:textSize="16sp" android:textColor="@color/black"/>
                 </LinearLayout>
 
-                <!-- Others -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Others:"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
-                    <TextView
-                        android:id="@+id/othersQuantity"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="16sp"
-                        android:textColor="@color/black" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Others:" android:textSize="16sp"
+                        android:textColor="@color/black"/>
+                    <TextView android:id="@+id/othersQuantity" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="0"
+                        android:textSize="16sp" android:textColor="@color/black"/>
                 </LinearLayout>
 
-                <!-- Total Pieces -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="12dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Total Pieces:"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black" />
-                    <TextView
-                        android:id="@+id/totalPieces"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="0"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black" />
+                <!-- Total Pieces & Price -->
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="12dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Total Pieces:" android:textSize="18sp"
+                        android:textStyle="bold" android:textColor="@color/black"/>
+                    <TextView android:id="@+id/totalPieces" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="0"
+                        android:textSize="18sp" android:textStyle="bold" android:textColor="@color/black"/>
                 </LinearLayout>
 
-                <!-- Total Price -->
-                <LinearLayout
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="horizontal"
-                    android:layout_marginTop="8dp">
-                    <TextView
-                        android:layout_width="0dp"
-                        android:layout_height="wrap_content"
-                        android:layout_weight="1"
-                        android:text="Total Price:"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black" />
-                    <TextView
-                        android:id="@+id/totalPrice"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:text="₹0"
-                        android:textSize="18sp"
-                        android:textStyle="bold"
-                        android:textColor="@color/black" />
+                <LinearLayout android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="horizontal" android:layout_marginTop="8dp">
+                    <TextView android:layout_width="0dp" android:layout_height="wrap_content"
+                        android:layout_weight="1" android:text="Total Price:" android:textSize="18sp"
+                        android:textStyle="bold" android:textColor="@color/black"/>
+                    <TextView android:id="@+id/totalPrice" android:layout_width="wrap_content"
+                        android:layout_height="wrap_content" android:text="₹0"
+                        android:textSize="18sp" android:textStyle="bold" android:textColor="@color/black"/>
                 </LinearLayout>
 
                 <!-- Divider -->
-                <View
-                    android:layout_width="match_parent"
-                    android:layout_height="1dp"
-                    android:background="@color/black"
-                    android:layout_marginVertical="12dp" />
+                <View android:layout_width="match_parent" android:layout_height="1dp"
+                    android:background="@color/black" android:layout_marginVertical="12dp"/>
 
-                <!-- Payment Method (INSIDE CARD) -->
-                <TextView
-                    android:id="@+id/paymentMethodHeading"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Payment Method"
-                    android:textSize="18sp"
-                    android:textStyle="bold"
-                    android:textColor="@color/black"
-                    android:layout_marginTop="16dp" />
+                <!-- Payment Method -->
+                <TextView android:id="@+id/paymentMethodHeading" android:layout_width="wrap_content"
+                    android:layout_height="wrap_content" android:text="Payment Method"
+                    android:textSize="18sp" android:textStyle="bold" android:textColor="@color/black"
+                    android:layout_marginTop="16dp"/>
 
-                <RadioGroup
-                    android:id="@+id/paymentMethodGroup"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical"
-                    android:layout_marginTop="8dp"
+                <RadioGroup android:id="@+id/paymentMethodGroup"
+                    android:layout_width="match_parent" android:layout_height="wrap_content"
+                    android:orientation="vertical" android:layout_marginTop="8dp"
                     android:paddingHorizontal="8dp">
+
                     <RadioButton
                         android:id="@+id/cashOnDeliveryRadio"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:text="Cash on Delivery"
                         android:textSize="16sp"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/black"
+                        android:checked="true"/>
                 </RadioGroup>
 
             </LinearLayout>
         </ScrollView>
-
     </androidx.cardview.widget.CardView>
 
+    <!-- Done Button -->
     <Button
-        android:id="@+id/btn_continue"
-        android:layout_width="match_parent"
+        android:id="@+id/doneButton"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_margin="16dp"
-        android:backgroundTint="@color/Emerald"
-        android:onClick="Done2"
         android:text="Done"
-        android:textColor="@color/white"
-        android:textSize="18sp"
+        android:onClick="Done1"
+        android:textAllCaps="false"
+        android:textColor="@android:color/white"
+        android:backgroundTint="@color/teal_700"
+        android:layout_marginHorizontal="32dp"
+        android:layout_marginBottom="16dp"
+        app:cornerRadius="16dp"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toBottomOf="@id/orderDetailsCard" />
-
+        app:layout_constraintEnd_toEndOf="parent"/>
 </androidx.constraintlayout.widget.ConstraintLayout>
