@@ -1,10 +1,17 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
+
     <!-- Required Permissions -->
+    <uses-feature
+        android:name="android.hardware.telephony"
+        android:required="false" />
+
     <uses-permission android:name="android.permission.ACCESS_FINE_LOCATION" />
     <uses-permission android:name="android.permission.ACCESS_COARSE_LOCATION" />
     <uses-permission android:name="android.permission.INTERNET" />
+    <uses-permission android:name="android.permission.SEND_SMS" />
+
 
     <application
         android:allowBackup="true"
@@ -16,115 +23,57 @@
         android:supportsRtl="true"
         android:theme="@style/Theme.Picklaundry"
         tools:targetApi="31">
-        <activity
-            android:name=".Myrequest"
-            android:exported="false" />
-        <activity
-            android:name=".MyCart"
-            android:exported="false" />
-        <activity
-            android:name=".Myorder"
-            android:exported="false" />
-        <activity
-            android:name=".Fourshose"
-            android:exported="false" />
-        <activity
-            android:name=".Thirdshose"
-            android:exported="false" />
-        <activity
-            android:name=".Secondshose"
-            android:exported="false" />
-        <activity
-            android:name=".Fourdryclean"
-            android:exported="false" />
-        <activity
-            android:name=".Thirddryclean"
-            android:exported="false" />
-        <activity
-            android:name=".Seconddryclean"
-            android:exported="false" />
-        <activity
-            android:name=".Fouriron"
-            android:exported="false" />
-        <activity
-            android:name=".Thirdiron"
-            android:exported="false" />
-        <activity
-            android:name=".Secondiron"
-            android:exported="false" />
-        <activity
-            android:name=".Fourwashandfolds"
-            android:exported="false" />
-        <activity
-            android:name=".Thirdwashandfolds"
-            android:exported="false" />
-        <activity
-            android:name=".Secondwashandfolds"
-            android:exported="false" />
-        <activity
-            android:name=".Fourwashandiron"
-            android:exported="false" />
-        <activity
-            android:name=".Thirdwashandiron"
-            android:exported="false" />
-        <activity
-            android:name=".Secondwashandiron"
-            android:exported="false" />
-        <activity
-            android:name=".Shose"
-            android:exported="false" />
-        <activity
-            android:name=".Firstdryclean"
-            android:exported="false" />
-        <activity
-            android:name=".Firstiron"
-            android:exported="false" />
-        <activity
-            android:name=".Firstwashandfolds"
-            android:exported="false" />
-        <activity
-            android:name=".Firstwashandiron"
-            android:exported="false" />
-        <activity
-            android:name=".About"
-            android:exported="false" />
-        <activity
-            android:name=".Settings"
-            android:exported="false" />
-        <activity
-            android:name=".Contact"
-            android:exported="false" />
-        <activity
-            android:name=".Profile"
-            android:exported="false" /> <!-- Google Maps API Key -->
-        <meta-data
-            android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBuPZ7K7xohSf3gWHP-tfoG1FVxtboZB2w" /> <!-- Activities -->
-        <activity
-            android:name=".LocationPickerActivity"
-            android:exported="false"
-            android:label="@string/title_activity_location_picker" />
-        <activity
-            android:name=".RegisterAtivity"
-            android:exported="false" />
-        <activity
-            android:name=".LoginAtivity"
-            android:exported="false" />
-        <activity
-            android:name=".Secondactivity"
-            android:exported="false" />
-        <activity
-            android:name=".MainActivity"
-            android:exported="false" /> <!-- Splash Screen (Launcher Activity) -->
-        <activity
-            android:name=".Splashscreen"
+
+        <!-- Activities -->
+        <activity android:name=".Splashscreen"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
-
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+
+        <activity android:name=".Myrequest" android:exported="false" />
+        <activity android:name=".MyCart" android:exported="false" />
+        <activity android:name=".Myorder" android:exported="false" />
+        <activity android:name=".Fourshose" android:exported="false" />
+        <activity android:name=".Thirdshose" android:exported="false" />
+        <activity android:name=".Secondshose" android:exported="false" />
+        <activity android:name=".Fourdryclean" android:exported="false" />
+        <activity android:name=".Thirddryclean" android:exported="false" />
+        <activity android:name=".Seconddryclean" android:exported="false" />
+        <activity android:name=".Fouriron" android:exported="false" />
+        <activity android:name=".Thirdiron" android:exported="false" />
+        <activity android:name=".Secondiron" android:exported="false" />
+        <activity android:name=".Fourwashandfolds" android:exported="false" />
+        <activity android:name=".Thirdwashandfolds" android:exported="false" />
+        <activity android:name=".Secondwashandfolds" android:exported="false" />
+        <activity android:name=".Fourwashandiron" android:exported="false" />
+        <activity android:name=".Thirdwashandiron" android:exported="false" />
+        <activity android:name=".Secondwashandiron" android:exported="false" />
+        <activity android:name=".Shose" android:exported="false" />
+        <activity android:name=".Firstdryclean" android:exported="false" />
+        <activity android:name=".Firstiron" android:exported="false" />
+        <activity android:name=".Firstwashandfolds" android:exported="false" />
+        <activity android:name=".Firstwashandiron" android:exported="false" />
+        <activity android:name=".About" android:exported="false" />
+        <activity android:name=".Settings" android:exported="false" />
+        <activity android:name=".Contact" android:exported="false" />
+        <activity android:name=".Profile" android:exported="false" />
+
+        <!-- Google Maps API Key -->
+        <meta-data
+            android:name="com.google.android.geo.API_KEY"
+            android:value="AIzaSyBuPZ7K7xohSf3gWHP-tfoG1FVxtboZB2w" />
+
+        <activity android:name=".LocationPickerActivity"
+            android:exported="false"
+            android:label="@string/title_activity_location_picker" />
+
+        <activity android:name=".RegisterAtivity" android:exported="false" />
+        <activity android:name=".LoginAtivity" android:exported="false" />
+        <activity android:name=".Secondactivity" android:exported="false" />
+        <activity android:name=".MainActivity" android:exported="false" />
     </application>
 
 </manifest>

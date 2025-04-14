@@ -72,7 +72,7 @@ public class Contact extends AppCompatActivity {
 
         // Phone Click Listener
         tvPhone.setOnClickListener(v -> {
-            String phoneNumber = "+918847892002";
+            String phoneNumber = "+9193374 25120";
             Intent callIntent = new Intent(Intent.ACTION_DIAL);
             callIntent.setData(Uri.parse("tel:" + phoneNumber));
             startActivity(callIntent);

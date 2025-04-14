@@ -2,13 +2,22 @@ package com.example.picklaundry;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
+
+import android.content.pm.PackageManager;
 import android.graphics.Color;
 import android.os.Bundle;
+import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.Manifest;
+
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
+
 import java.util.*;
 
 public class Myrequest extends AppCompatActivity {
@@ -50,13 +59,13 @@ public class Myrequest extends AppCompatActivity {
         tvIsOutForPickup = findViewById(R.id.tvOutForPickup);
         tvIsPaymentDone = findViewById(R.id.tvPaymentSuccessful);
 
-        // Firebase
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("Order_request");
 
         if (auth.getCurrentUser() != null) {
             currentUserId = auth.getCurrentUser().getUid();
-            fetchLatestOrder(); // Fetch latest order & then fetch order status
+            fetchLatestOrder();
+
         } else {
             Log.e(TAG, "User not logged in.");
         }
@@ -66,61 +75,57 @@ public class Myrequest extends AppCompatActivity {
         List<String> categories = Arrays.asList("DryCleanOrders", "IronOrders", "Washandfolds", "Washandiron");
 
         for (String category : categories) {
-            databaseReference.child(category).orderByKey().limitToLast(1)
-                    .addListenerForSingleValueEvent(new ValueEventListener() {
-                        @Override
-                        public void onDataChange(@NonNull DataSnapshot snapshot) {
-                            for (DataSnapshot orderSnapshot : snapshot.getChildren()) {
-                                String userId = orderSnapshot.child("userId").getValue(String.class);
+            DatabaseReference userCategoryRef = databaseReference.child(currentUserId).child(category);
 
-                                if (userId != null && userId.equals(currentUserId)) {
-                                    latestOrderKey = orderSnapshot.getKey();
-                                    latestOrderData.clear();
-                                    latestOrderData.put("category", category);
-                                    latestOrderData.put("orderId", latestOrderKey);
-                                    latestOrderData.put("PantsQuantity", orderSnapshot.child("PantsQuantity").getValue(Integer.class));
-                                    latestOrderData.put("ShirtQuantity", orderSnapshot.child("ShirtQuantity").getValue(Integer.class));
-                                    latestOrderData.put("OthersQuantity", orderSnapshot.child("OthersQuantity").getValue(Integer.class));
-                                    latestOrderData.put("TotalPieces", orderSnapshot.child("TotalPieces").getValue(Integer.class));
-                                    latestOrderData.put("TotalPrice", orderSnapshot.child("TotalPrice").getValue(Integer.class));
-                                    latestOrderData.put("address", orderSnapshot.child("address").getValue(String.class));
-                                    latestOrderData.put("email", orderSnapshot.child("email").getValue(String.class));
-                                    latestOrderData.put("gender", orderSnapshot.child("gender").getValue(String.class));
-                                    latestOrderData.put("mobile", orderSnapshot.child("mobile").getValue(String.class));
-                                    latestOrderData.put("name", orderSnapshot.child("name").getValue(String.class));
-                                }
-                            }
+            userCategoryRef.orderByKey().limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
+                @Override
+                public void onDataChange(@NonNull DataSnapshot snapshot) {
+                    for (DataSnapshot orderSnapshot : snapshot.getChildren()) {
+                        String orderId = orderSnapshot.getKey();
+                        latestOrderKey = orderId;
 
-                            if (latestOrderKey != null) {
-                                updateUI();
-                                fetchOrderStatus(); // Fetch order status after setting latestOrderKey
-                            }
-                        }
+                        latestOrderData.clear();
+                        latestOrderData.put("category", category);
+                        latestOrderData.put("orderId", orderId);
+                        latestOrderData.put("PantsQuantity", orderSnapshot.child("PantsQuantity").getValue(Integer.class));
+                        latestOrderData.put("ShirtQuantity", orderSnapshot.child("ShirtQuantity").getValue(Integer.class));
+                        latestOrderData.put("OthersQuantity", orderSnapshot.child("OthersQuantity").getValue(Integer.class));
+                        latestOrderData.put("TotalPieces", orderSnapshot.child("TotalPieces").getValue(Integer.class));
+                        latestOrderData.put("TotalPrice", orderSnapshot.child("TotalPrice").getValue(Integer.class));
+                        latestOrderData.put("address", orderSnapshot.child("address").getValue(String.class));
+                        latestOrderData.put("email", orderSnapshot.child("email").getValue(String.class));
+                        latestOrderData.put("gender", orderSnapshot.child("gender").getValue(String.class));
+                        latestOrderData.put("mobile", orderSnapshot.child("mobile").getValue(String.class));
+                        latestOrderData.put("name", orderSnapshot.child("name").getValue(String.class));
 
-                        private void updateUI() {
-                            if (latestOrderData.isEmpty()) return;
+                        updateUI();
+                        fetchOrderStatus();
+                    }
+                }
 
-                            tvCategory.setText("Category: " + latestOrderData.get("category"));
-                            tvOrderId.setText("Order ID: " + latestOrderData.get("orderId"));
-                            tvPants.setText("Pants: " + latestOrderData.get("PantsQuantity"));
-                            tvShirts.setText("Shirts: " + latestOrderData.get("ShirtQuantity"));
-                            tvOthers.setText("Others: " + latestOrderData.get("OthersQuantity"));
-                            tvTotalPieces.setText("Total Pieces: " + latestOrderData.get("TotalPieces"));
-                            tvTotalPrice.setText("Total Price: ₹" + latestOrderData.get("TotalPrice"));
-                            tvAddress.setText("Address: " + latestOrderData.get("address"));
-                            tvEmail.setText("Email: " + latestOrderData.get("email"));
-                            tvGender.setText("Gender: " + latestOrderData.get("gender"));
-                            tvMobile.setText("Mobile: " + latestOrderData.get("mobile"));
-                            tvName.setText("Name: " + latestOrderData.get("name"));
-                        }
-
-
-                        @Override
-                        public void onCancelled(@NonNull DatabaseError error) {
-                            Log.e(TAG, "Database error: " + error.getMessage());
-                        }
-                    });
+                @Override
+                public void onCancelled(@NonNull DatabaseError error) {
+                    Log.e(TAG, "Database error: " + error.getMessage());
+                }
+            });
         }
+    }
+
+    private void updateUI() {
+        if (latestOrderData.isEmpty()) return;
+
+        tvCategory.setText("Category: " + latestOrderData.get("category"));
+        tvOrderId.setText("Order ID: " + latestOrderData.get("orderId"));
+        tvPants.setText("Pants: " + latestOrderData.get("PantsQuantity"));
+        tvShirts.setText("Shirts: " + latestOrderData.get("ShirtQuantity"));
+        tvOthers.setText("Others: " + latestOrderData.get("OthersQuantity"));
+        tvTotalPieces.setText("Total Pieces: " + latestOrderData.get("TotalPieces"));
+        tvTotalPrice.setText("Total Price: ₹" + latestOrderData.get("TotalPrice"));
+        tvAddress.setText("Address: " + latestOrderData.get("address"));
+        tvEmail.setText("Email: " + latestOrderData.get("email"));
+        tvGender.setText("Gender: " + latestOrderData.get("gender"));
+        tvMobile.setText("Mobile: " + latestOrderData.get("mobile"));
+        tvName.setText("Name: " + latestOrderData.get("name"));
     }
 
     private void fetchOrderStatus() {
@@ -155,4 +160,77 @@ public class Myrequest extends AppCompatActivity {
         tvIsDelivered.setText(isDelivered ? "✅ Delivered" : "❌ Not Delivered Yet");
         tvIsPaymentDone.setText(isPaymentDone ? "💵 Payment Successful" : "❌ Payment Pending");
     }
+
+    public void cancel(View view) {
+        if (latestOrderKey != null && latestOrderData.containsKey("category")) {
+            String category = latestOrderData.get("category").toString();
+            String orderId = latestOrderKey;
+            String totalPieces = latestOrderData.get("TotalPieces").toString();
+            String totalPrice = latestOrderData.get("TotalPrice").toString();
+            String mobile = latestOrderData.get("mobile").toString();
+
+            // Prepare the SMS content
+            String smsMessage = "Your Order is canceling. Your category is: " + category +
+                    " and your order ID is: " + orderId +
+                    ". Total pieces: " + totalPieces +
+                    " and Total price: " + totalPrice;
+
+            // Check for SEND_SMS permission
+            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+                // Permission not granted, request permission
+                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
+            } else {
+                // Permission granted, proceed with SMS sending
+                sendSMS(smsMessage, mobile);
+            }
+
+            // Animation
+            tvCancel.animate().alpha(0f).setDuration(500).withEndAction(() -> {
+                Log.d(TAG, "Attempting to remove order from Firebase...");
+
+                // Remove from Order_request
+                databaseReference.child(currentUserId).child(category).child(latestOrderKey).removeValue()
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Order successfully removed from Order_request"))
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Failed to remove from Order_request: " + e.getMessage(), e);
+                        });
+
+                // Remove from Order_all
+                FirebaseDatabase.getInstance().getReference("Order_all").child(currentUserId)
+                        .child(category).child(latestOrderKey).removeValue()
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Order successfully removed from Order_all"))
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Failed to remove from Order_all: " + e.getMessage(), e);
+                        });
+
+                // Optionally remove from OrderStatus
+                FirebaseDatabase.getInstance().getReference("OrderStatus")
+                        .child(latestOrderKey).removeValue()
+                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Order status successfully removed"))
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Failed to remove order status: " + e.getMessage(), e);
+                        });
+
+                // Optionally show a toast
+                runOnUiThread(() -> {
+                    tvCancel.setText("Cancelled ✅");
+                    tvCancel.setTextColor(Color.RED);
+                });
+            }).start();
+        } else {
+            Log.w(TAG, "No latest order found to cancel.");
+        }
+    }
+
+    private void sendSMS(String message, String phoneNumber) {
+        try {
+            SmsManager smsManager = SmsManager.getDefault();
+            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
+            Log.d(TAG, "SMS sent successfully");
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to send SMS: " + e.getMessage(), e);
+            Toast.makeText(this, "Failed to send SMS", Toast.LENGTH_SHORT).show();
+        }
+    }
+
 }

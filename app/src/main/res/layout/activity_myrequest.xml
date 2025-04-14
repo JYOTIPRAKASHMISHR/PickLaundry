@@ -78,7 +78,7 @@
                         android:id="@+id/tvCategory"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="Category: Laundry"
+                        android:text="Category"
                         android:textSize="16sp"
                         android:textStyle="bold"
                         android:textColor="@color/Emerald" />
@@ -87,7 +87,7 @@
                         android:id="@+id/tvOrderId"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📦 Order ID: OKRJdr_5OD2AXhDX0nM"
+                        android:text="📦 Order ID:"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#333333"
@@ -125,7 +125,7 @@
                         android:id="@+id/tvTotalPieces"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📊 Total Pieces: 5"
+                        android:text="📊 Total Pieces: 0"
                         android:textSize="16sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="4dp" />
@@ -134,7 +134,7 @@
                         android:id="@+id/tvTotalPrice"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="💰 Total Price: ₹60"
+                        android:text="💰 Total Price: ₹0"
                         android:textSize="18sp"
                         android:textStyle="bold"
                         android:textColor="#4CAF50"
@@ -144,7 +144,7 @@
                         android:id="@+id/tvAddress"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📍 Address:\n9R54+JF4, Patharagadia Rd, Patharagadia,\nBhubaneswar, Odisha 751024, India"
+                        android:text="📍 Address:"
                         android:textSize="16sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="6dp" />
@@ -153,7 +153,7 @@
                         android:id="@+id/tvEmail"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📧 Email: jyotiprakashmishra971@gmail.com"
+                        android:text="📧 Email: "
                         android:textSize="16sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="4dp" />
@@ -162,7 +162,7 @@
                         android:id="@+id/tvGender"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="👨 Gender: Male"
+                        android:text="👨 Gender:"
                         android:textSize="16sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="4dp" />
@@ -171,7 +171,7 @@
                         android:id="@+id/tvMobile"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📞 Mobile: 8093784563"
+                        android:text="📞 Mobile: "
                         android:textSize="16sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="4dp" />
@@ -180,7 +180,7 @@
                         android:id="@+id/tvName"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="🙋 Name: Jyotiprakash M"
+                        android:text="🙋 Name: "
                         android:textSize="16sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="4dp" />
