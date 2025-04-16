@@ -56,6 +56,9 @@ public class MainActivity extends AppCompatActivity {
                 else if (id == R.id.my_request) {
                     startActivity(new Intent(MainActivity.this, Myrequest.class));
                 }
+                else if (id == R.id.nav_orders) {
+                    startActivity(new Intent(MainActivity.this, Myorder.class));
+                }
                 else if (id == R.id.setting) {
                     startActivity(new Intent(MainActivity.this, Settings
                             .class));

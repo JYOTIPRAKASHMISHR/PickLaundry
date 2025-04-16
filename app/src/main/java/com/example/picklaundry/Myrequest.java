@@ -100,6 +100,7 @@ public class Myrequest extends AppCompatActivity {
 
                         updateUI();
                         fetchOrderStatus();
+                        checkOrderDone();
                     }
                 }
 
@@ -161,6 +162,31 @@ public class Myrequest extends AppCompatActivity {
         tvIsPaymentDone.setText(isPaymentDone ? "💵 Payment Successful" : "❌ Payment Pending");
     }
 
+    private void checkOrderDone() {
+        if (latestOrderKey == null) return;
+
+        DatabaseReference orderDoneRef = FirebaseDatabase.getInstance()
+                .getReference("order_done").child(latestOrderKey);
+
+        orderDoneRef.addListenerForSingleValueEvent(new ValueEventListener() {
+            @Override
+            public void onDataChange(@NonNull DataSnapshot snapshot) {
+                if (snapshot.exists()) {
+                    // The order is already marked as done
+                    tvCancel.setVisibility(View.GONE);
+                } else {
+                    // The order is not done yet, allow cancel
+                    tvCancel.setVisibility(View.VISIBLE);
+                }
+            }
+
+            @Override
+            public void onCancelled(@NonNull DatabaseError error) {
+                Log.e("OrderCheck", "Error checking order_done: " + error.getMessage());
+            }
+        });
+    }
+
     public void cancel(View view) {
         if (latestOrderKey != null && latestOrderData.containsKey("category")) {
             String category = latestOrderData.get("category").toString();
@@ -170,7 +196,7 @@ public class Myrequest extends AppCompatActivity {
             String mobile = latestOrderData.get("mobile").toString();
 
             // Prepare the SMS content
-            String smsMessage = "Your Order is canceling. Your category is: " + category +
+            String smsMessage = "This is From PickLaundry. Your Order is canceling. Your category is: " + category +
                     " and your order ID is: " + orderId +
                     ". Total pieces: " + totalPieces +
                     " and Total price: " + totalPrice;
@@ -189,36 +215,14 @@ public class Myrequest extends AppCompatActivity {
                 Log.d(TAG, "Attempting to remove order from Firebase...");
 
                 // Remove from Order_request
-                databaseReference.child(currentUserId).child(category).child(latestOrderKey).removeValue()
-                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Order successfully removed from Order_request"))
+                databaseReference.child(currentUserId).child(category).child(orderId).removeValue()
+                        .addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "Order removed successfully.");
+                        })
                         .addOnFailureListener(e -> {
-                            Log.e(TAG, "Failed to remove from Order_request: " + e.getMessage(), e);
+                            Log.e(TAG, "Failed to remove order: " + e.getMessage());
                         });
-
-                // Remove from Order_all
-                FirebaseDatabase.getInstance().getReference("Order_all").child(currentUserId)
-                        .child(category).child(latestOrderKey).removeValue()
-                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Order successfully removed from Order_all"))
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Failed to remove from Order_all: " + e.getMessage(), e);
-                        });
-
-                // Optionally remove from OrderStatus
-                FirebaseDatabase.getInstance().getReference("OrderStatus")
-                        .child(latestOrderKey).removeValue()
-                        .addOnSuccessListener(aVoid -> Log.d(TAG, "Order status successfully removed"))
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Failed to remove order status: " + e.getMessage(), e);
-                        });
-
-                // Optionally show a toast
-                runOnUiThread(() -> {
-                    tvCancel.setText("Cancelled ✅");
-                    tvCancel.setTextColor(Color.RED);
-                });
-            }).start();
-        } else {
-            Log.w(TAG, "No latest order found to cancel.");
+            });
         }
     }
 
@@ -228,9 +232,9 @@ public class Myrequest extends AppCompatActivity {
             smsManager.sendTextMessage(phoneNumber, null, message, null, null);
             Log.d(TAG, "SMS sent successfully");
         } catch (Exception e) {
+            e.printStackTrace();
             Log.e(TAG, "Failed to send SMS: " + e.getMessage(), e);
             Toast.makeText(this, "Failed to send SMS", Toast.LENGTH_SHORT).show();
         }
     }
-
 }
