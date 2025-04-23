@@ -16,6 +16,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.Toast;
 
+import com.example.picklaundry.databinding.ActivityLocationPickerBinding;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationServices;
 import com.google.android.gms.maps.CameraUpdateFactory;
@@ -24,7 +25,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.example.picklaundry.databinding.ActivityLocationPickerBinding;
 import com.google.android.gms.tasks.OnSuccessListener;
 import com.google.android.gms.tasks.Task;
 import com.google.firebase.database.DatabaseReference;
@@ -52,12 +52,8 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
         binding = ActivityLocationPickerBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
-        // Initialize Firebase Database reference
         databaseReference = FirebaseDatabase.getInstance().getReference("address");
-
-        // Initialize location client
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         btnSaveAddress = findViewById(R.id.btn_save_address);
 
         SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
@@ -66,11 +62,11 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
             mapFragment.getMapAsync(this);
         }
 
-        btnSaveAddress.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {Intent intent = new Intent(LocationPickerActivity.this, RegisterAtivity.class);
+        btnSaveAddress.setOnClickListener(v -> {
+            if (selectedLatLng == null) {
+                getCurrentLocationAndSave();  // Try to fetch current location before saving
+            } else {
                 saveAddressToFirebase();
-                startActivity(intent);
             }
         });
     }
@@ -88,35 +84,45 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
         mMap.setMyLocationEnabled(true);
         getCurrentLocation();
 
-        mMap.setOnMapClickListener(new GoogleMap.OnMapClickListener() {
-            @Override
-            public void onMapClick(LatLng latLng) {
-                selectedLatLng = latLng;
-                mMap.clear();
-                mMap.addMarker(new MarkerOptions().position(latLng).title("Selected Location"));
-                mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
-                Log.d(TAG, "User selected location: " + latLng.latitude + ", " + latLng.longitude);
-            }
+        mMap.setOnMapClickListener(latLng -> {
+            selectedLatLng = latLng;
+            mMap.clear();
+            mMap.addMarker(new MarkerOptions().position(latLng).title("Selected Location"));
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 15));
+            Log.d(TAG, "User selected location: " + latLng.latitude + ", " + latLng.longitude);
         });
     }
 
     private void getCurrentLocation() {
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
             Task<Location> task = fusedLocationClient.getLastLocation();
-            task.addOnSuccessListener(new OnSuccessListener<Location>() {
-                @Override
-                public void onSuccess(Location location) {
-                    if (location != null) {
-                        selectedLatLng = new LatLng(location.getLatitude(), location.getLongitude());
-                        mMap.addMarker(new MarkerOptions().position(selectedLatLng).title("Your Location"));
-                        mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng, 15));
-                        Log.d(TAG, "Current location retrieved: " + selectedLatLng.latitude + ", " + selectedLatLng.longitude);
-                    } else {
-                        Log.e(TAG, "Unable to get location");
-                        Toast.makeText(LocationPickerActivity.this, "Unable to get location", Toast.LENGTH_SHORT).show();
-                    }
+            task.addOnSuccessListener(location -> {
+                if (location != null) {
+                    selectedLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    mMap.addMarker(new MarkerOptions().position(selectedLatLng).title("Your Location"));
+                    mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(selectedLatLng, 15));
+                    Log.d(TAG, "Current location retrieved: " + selectedLatLng.latitude + ", " + selectedLatLng.longitude);
+                } else {
+                    Log.e(TAG, "Unable to get location");
+                    Toast.makeText(LocationPickerActivity.this, "Unable to get location", Toast.LENGTH_SHORT).show();
                 }
             });
+        }
+    }
+
+    private void getCurrentLocationAndSave() {
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            fusedLocationClient.getLastLocation().addOnSuccessListener(location -> {
+                if (location != null) {
+                    selectedLatLng = new LatLng(location.getLatitude(), location.getLongitude());
+                    saveAddressToFirebase();
+                } else {
+                    Toast.makeText(this, "Unable to fetch current location", Toast.LENGTH_SHORT).show();
+                    Log.e(TAG, "getCurrentLocationAndSave: Location null");
+                }
+            });
+        } else {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, LOCATION_REQUEST_CODE);
         }
     }
 
@@ -134,13 +140,18 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
             return;
         }
 
-        String id = databaseReference.push().getKey(); // Generate unique ID
+        String id = databaseReference.push().getKey();
         Log.d(TAG, "Saving Address: " + address + " with ID: " + id);
 
         databaseReference.child(id).setValue(address)
                 .addOnSuccessListener(aVoid -> {
                     Log.d(TAG, "Address saved successfully in Firebase");
                     Toast.makeText(LocationPickerActivity.this, "Address Saved Successfully", Toast.LENGTH_SHORT).show();
+
+                    // Navigate to next activity after successful save
+                    Intent intent = new Intent(LocationPickerActivity.this, RegisterAtivity.class);
+                    startActivity(intent);
+                    finish();
                 })
                 .addOnFailureListener(e -> {
                     Log.e(TAG, "Failed to Save Address: " + e.getMessage());
@@ -152,7 +163,7 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
         Geocoder geocoder = new Geocoder(this, Locale.getDefault());
         try {
             List<Address> addresses = geocoder.getFromLocation(latLng.latitude, latLng.longitude, 1);
-            if (addresses != null && addresses.size() > 0) {
+            if (addresses != null && !addresses.isEmpty()) {
                 String fullAddress = addresses.get(0).getAddressLine(0);
                 Log.d(TAG, "Address found: " + fullAddress);
                 return fullAddress;
