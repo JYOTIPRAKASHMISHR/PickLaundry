@@ -9,6 +9,7 @@ import android.os.Bundle;
 import android.util.Log;
 import android.widget.Toast;
 
+import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -24,6 +25,7 @@ public class Myorder extends AppCompatActivity {
     private OrderAdapter orderAdapter;
     private List<OrderModel> orderList;
     private DatabaseReference databaseReference;
+    private String currentUserId;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -37,7 +39,9 @@ public class Myorder extends AppCompatActivity {
         orderAdapter = new OrderAdapter(this, orderList);
         recyclerView.setAdapter(orderAdapter);
 
-        databaseReference = FirebaseDatabase.getInstance().getReference("Order_request");
+        // Get current user ID
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
+        databaseReference = FirebaseDatabase.getInstance().getReference("Order_request").child(currentUserId);
 
         fetchOrders();
     }
@@ -48,30 +52,25 @@ public class Myorder extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 orderList.clear();
 
-                for (DataSnapshot userSnapshot : snapshot.getChildren()) {
-                    String userId = userSnapshot.getKey();  // Use this variable
+                for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
+                    String category = categorySnapshot.getKey(); // Washandiron or IronOrders
 
-                    for (DataSnapshot categorySnapshot : userSnapshot.getChildren()) {
-                        String category = categorySnapshot.getKey();
+                    for (DataSnapshot orderSnapshot : categorySnapshot.getChildren()) {
+                        String orderId = orderSnapshot.getKey();
+                        String name = orderSnapshot.child("name").getValue(String.class);
+                        String totalPrice = "0";
 
-                        for (DataSnapshot orderSnapshot : categorySnapshot.getChildren()) {
-                            String orderId = orderSnapshot.getKey();
-                            String name = orderSnapshot.child("name").getValue(String.class);
-                            String totalPrice = "0";
+                        if (orderSnapshot.child("TotalPrice").exists()) {
+                            Long totalPriceLong = orderSnapshot.child("TotalPrice").getValue(Long.class);
+                            totalPrice = totalPriceLong != null ? String.valueOf(totalPriceLong) : "0";
+                        }
 
-                            if (orderSnapshot.child("TotalPrice").exists()) {
-                                Long totalPriceLong = orderSnapshot.child("TotalPrice").getValue(Long.class);
-                                totalPrice = totalPriceLong != null ? String.valueOf(totalPriceLong) : "0";
-                            }
+                        if (orderId != null && name != null) {
+                            OrderModel order = new OrderModel(orderId, name, totalPrice, category, currentUserId);
+                            orderList.add(order);
 
-                            if (orderId != null && name != null) {
-                                // Correctly use userId here
-                                OrderModel order = new OrderModel(orderId, name, totalPrice, category, userId);
-                                orderList.add(order);
-
-                                Log.d("FirebaseData", "User: " + userId + " | Category: " + category +
-                                        " | Order ID: " + orderId + " | Name: " + name + " | Price: " + totalPrice);
-                            }
+                            Log.d("FirebaseData", "User: " + currentUserId + " | Category: " + category +
+                                    " | Order ID: " + orderId + " | Name: " + name + " | Price: " + totalPrice);
                         }
                     }
                 }

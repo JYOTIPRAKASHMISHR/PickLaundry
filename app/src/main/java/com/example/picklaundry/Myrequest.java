@@ -26,7 +26,7 @@ public class Myrequest extends AppCompatActivity {
             tvTotalPrice, tvAddress, tvEmail, tvGender, tvMobile, tvName, tvCancel;
     private TextView tvIsConfirm, tvIsStored, tvIsDelivered, tvIsOutForDelivery, tvIsOutForPickup, tvIsPaymentDone;
 
-    private DatabaseReference databaseReference;
+    private DatabaseReference databaseReference,databaseReference2;
     private FirebaseAuth auth;
     private String currentUserId;
     private String latestOrderKey = null;
@@ -61,6 +61,8 @@ public class Myrequest extends AppCompatActivity {
 
         auth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("Order_request");
+        databaseReference2 = FirebaseDatabase.getInstance().getReference("Order_all");
+
 
         if (auth.getCurrentUser() != null) {
             currentUserId = auth.getCurrentUser().getUid();
@@ -216,6 +218,14 @@ public class Myrequest extends AppCompatActivity {
 
                 // Remove from Order_request
                 databaseReference.child(currentUserId).child(category).child(orderId).removeValue()
+                        .addOnSuccessListener(aVoid -> {
+                            Log.d(TAG, "Order removed successfully.");
+                        })
+                        .addOnFailureListener(e -> {
+                            Log.e(TAG, "Failed to remove order: " + e.getMessage());
+                        });
+                // Remove from Order_all
+                databaseReference2.child(currentUserId).child(category).child(orderId).removeValue()
                         .addOnSuccessListener(aVoid -> {
                             Log.d(TAG, "Order removed successfully.");
                         })

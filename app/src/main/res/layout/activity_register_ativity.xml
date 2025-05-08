@@ -74,16 +74,39 @@
                 android:layout_gravity="center_horizontal"
                 android:paddingBottom="10dp" />
 
+            <com.google.android.material.textfield.TextInputLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:hint="Location"
+                android:textColor="@android:color/black"
+                app:hintTextColor="@color/black"
+                app:boxStrokeColor="@color/teal_700"
+
+                android:layout_marginTop="8dp">
+
+                <com.google.android.material.textfield.TextInputEditText
+                    android:id="@+id/etLocation"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
+                    android:focusable="false"
+                    android:clickable="true" />
+            </com.google.android.material.textfield.TextInputLayout>
+
+
             <!-- Input Fields -->
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Name"
+                android:textColor="@android:color/black"
+                app:hintTextColor="@color/black"
                 app:boxStrokeColor="@color/teal_700">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etName"
                     android:layout_width="match_parent"
+                    android:textColor="@android:color/black"
                     android:layout_height="wrap_content"
                     android:inputType="textPersonName" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -92,6 +115,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Email"
+                android:textColor="@android:color/black"
+                app:hintTextColor="@color/black"
                 app:boxStrokeColor="@color/teal_700"
                 android:layout_marginTop="8dp">
 
@@ -99,6 +124,7 @@
                     android:id="@+id/etEmail"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
                     android:inputType="textEmailAddress" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -106,12 +132,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Mobile Number"
+                android:textColor="@android:color/black"
+                app:hintTextColor="@color/black"
                 app:boxStrokeColor="@color/teal_700"
                 android:layout_marginTop="8dp">
 
                 <com.google.android.material.textfield.TextInputEditText
                     android:id="@+id/etMobile"
                     android:layout_width="match_parent"
+                    android:textColor="@android:color/black"
                     android:layout_height="wrap_content"
                     android:inputType="phone" />
             </com.google.android.material.textfield.TextInputLayout>
@@ -120,6 +149,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Date of Birth"
+                android:textColor="@android:color/black"
+                app:hintTextColor="@color/black"
                 app:boxStrokeColor="@color/teal_700"
                 android:layout_marginTop="8dp">
 
@@ -128,6 +159,7 @@
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:focusable="false"
+                    android:textColor="@android:color/black"
                     android:clickable="true" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -135,6 +167,8 @@
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:text="Gender"
+                android:textColor="@android:color/black"
+                app:hintTextColor="@color/black"
                 android:textSize="16sp"
                 android:textStyle="bold"
                 android:layout_marginTop="12dp" />
@@ -150,35 +184,25 @@
                     android:id="@+id/rbMale"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:text="Male" />
+                    android:text="Male"
+                    android:textColor="@color/black"/>
 
                 <RadioButton
                     android:id="@+id/rbFemale"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="Female"
+                    android:textColor="@color/black"
                     android:layout_marginStart="16dp" />
             </RadioGroup>
 
-            <com.google.android.material.textfield.TextInputLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:hint="Location"
-                app:boxStrokeColor="@color/teal_700"
-                android:layout_marginTop="8dp">
-
-                <com.google.android.material.textfield.TextInputEditText
-                    android:id="@+id/etLocation"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:focusable="false"
-                    android:clickable="true" />
-            </com.google.android.material.textfield.TextInputLayout>
 
             <com.google.android.material.textfield.TextInputLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Password"
+                android:textColor="@android:color/black"
+                app:hintTextColor="@color/black"
                 app:boxStrokeColor="@color/teal_700"
                 android:layout_marginTop="8dp">
 
@@ -186,6 +210,7 @@
                     android:id="@+id/etPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
@@ -193,6 +218,8 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:hint="Confirm Password"
+                android:textColor="@android:color/black"
+                app:hintTextColor="@color/black"
                 app:boxStrokeColor="@color/teal_700"
                 android:layout_marginTop="8dp">
 
@@ -200,6 +227,7 @@
                     android:id="@+id/etConfirmPassword"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
+                    android:textColor="@android:color/black"
                     android:inputType="textPassword" />
             </com.google.android.material.textfield.TextInputLayout>
 
