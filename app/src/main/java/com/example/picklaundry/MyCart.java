@@ -21,7 +21,7 @@ public class MyCart extends AppCompatActivity {
     private static final int SMS_PERMISSION_REQUEST = 101;
 
     // TextViews
-    private TextView tvCategory, tvOrderId, tvPants, tvShirts, tvOthers, tvTotalPieces, tvTotalPrice, tvAddress, tvEmail, tvGender, tvMobile, tvName;
+    private TextView tvCategory, tvOrderId, tvPants, tvShirts, tvOthers,tvSneakers, tvLeatherShoes,tvSuedeShoes, tvTotalPieces, tvTotalPrice, tvAddress, tvEmail, tvGender, tvMobile, tvName;
     private TextView tvIsConfirm, tvIsStored, tvIsDelivered, tvIsOutForDelivery, tvIsOutForPickup, tvIsPaymentDone;
 
     private DatabaseReference orderRef, statusRef, userRef, pickupBoyRef,deliveryBoyRef;
@@ -52,6 +52,9 @@ public class MyCart extends AppCompatActivity {
         tvPants = findViewById(R.id.tvPants);
         tvShirts = findViewById(R.id.tvShirts);
         tvOthers = findViewById(R.id.tvOthers);
+        tvSneakers=findViewById(R.id.tvSneakers);
+        tvLeatherShoes=findViewById(R.id.tvLeatherShoes);
+        tvSuedeShoes=findViewById(R.id.tvSuedeShoes);
         tvTotalPieces = findViewById(R.id.tvTotalPieces);
         tvTotalPrice = findViewById(R.id.tvTotalPrice);
         tvAddress = findViewById(R.id.tvAddress);
@@ -100,6 +103,10 @@ public class MyCart extends AppCompatActivity {
                 tvPants.setText("👖 Pants: " + snapshot.child("PantsQuantity").getValue(Integer.class));
                 tvShirts.setText("👕 Shirts: " + snapshot.child("ShirtQuantity").getValue(Integer.class));
                 tvOthers.setText("🧥 Others: " + snapshot.child("OthersQuantity").getValue(Integer.class));
+                tvSneakers.setText("👟 Sneakers: " + snapshot.child("SneakersQuantity").getValue(Integer.class));
+                tvLeatherShoes.setText("👟 LeatherShoes: " + snapshot.child("LeatherShoesQuantity").getValue(Integer.class));
+                tvSuedeShoes.setText("👞 SuedeShoes: " + snapshot.child("SuedeShoesQuantity").getValue(Integer.class));
+
                 tvTotalPieces.setText("📊 Total Pieces: " + snapshot.child("TotalPieces").getValue(Integer.class));
                 tvTotalPrice.setText("💰 Total Price: ₹" + snapshot.child("TotalPrice").getValue(Integer.class));
                 tvAddress.setText("📍 Address:\n" + snapshot.child("address").getValue(String.class));

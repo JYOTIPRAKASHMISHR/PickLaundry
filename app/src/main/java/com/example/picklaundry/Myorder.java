@@ -1,30 +1,28 @@
 package com.example.picklaundry;
 
+import android.os.Bundle;
+import android.util.Log;
+import android.widget.Toast;
+
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import android.os.Bundle;
-import android.util.Log;
-import android.widget.Toast;
-
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 import java.util.ArrayList;
 import java.util.List;
 
 public class Myorder extends AppCompatActivity {
 
+    private static final String TAG = "MyOrderActivity";
+
     private RecyclerView recyclerView;
     private OrderAdapter orderAdapter;
-    private List<OrderModel> orderList;
-    private DatabaseReference databaseReference;
+    private final List<OrderModel> orderList = new ArrayList<>();
+    private DatabaseReference orderRef;
     private String currentUserId;
 
     @Override
@@ -32,45 +30,52 @@ public class Myorder extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_myorder);
 
-        recyclerView = findViewById(R.id.recyclerView);
-        recyclerView.setLayoutManager(new LinearLayoutManager(this));
-
-        orderList = new ArrayList<>();
-        orderAdapter = new OrderAdapter(this, orderList);
-        recyclerView.setAdapter(orderAdapter);
-
-        // Get current user ID
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser().getUid();
-        databaseReference = FirebaseDatabase.getInstance().getReference("Order_request").child(currentUserId);
-
+        initViews();
+        setupFirebase();
         fetchOrders();
     }
 
+    private void initViews() {
+        recyclerView = findViewById(R.id.recyclerView);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+        orderAdapter = new OrderAdapter(this, orderList);
+        recyclerView.setAdapter(orderAdapter);
+    }
+
+    private void setupFirebase() {
+        currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
+                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+
+        if (currentUserId == null) {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            finish();
+            return;
+        }
+
+        orderRef = FirebaseDatabase.getInstance()
+                .getReference("Order_request")
+                .child(currentUserId);
+    }
+
     private void fetchOrders() {
-        databaseReference.addValueEventListener(new ValueEventListener() {
+        orderRef.addValueEventListener(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 orderList.clear();
 
                 for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
-                    String category = categorySnapshot.getKey(); // Washandiron or IronOrders
+                    String category = categorySnapshot.getKey();
 
                     for (DataSnapshot orderSnapshot : categorySnapshot.getChildren()) {
                         String orderId = orderSnapshot.getKey();
                         String name = orderSnapshot.child("name").getValue(String.class);
-                        String totalPrice = "0";
-
-                        if (orderSnapshot.child("TotalPrice").exists()) {
-                            Long totalPriceLong = orderSnapshot.child("TotalPrice").getValue(Long.class);
-                            totalPrice = totalPriceLong != null ? String.valueOf(totalPriceLong) : "0";
-                        }
+                        String totalPrice = orderSnapshot.child("TotalPrice").getValue() != null ?
+                                String.valueOf(orderSnapshot.child("TotalPrice").getValue()) : "0";
 
                         if (orderId != null && name != null) {
-                            OrderModel order = new OrderModel(orderId, name, totalPrice, category, currentUserId);
-                            orderList.add(order);
-
-                            Log.d("FirebaseData", "User: " + currentUserId + " | Category: " + category +
-                                    " | Order ID: " + orderId + " | Name: " + name + " | Price: " + totalPrice);
+                            orderList.add(new OrderModel(orderId, name, totalPrice, category, currentUserId));
+                            Log.d(TAG, String.format("Order - ID: %s, Name: %s, Price: %s, Category: %s",
+                                    orderId, name, totalPrice, category));
                         }
                     }
                 }
@@ -80,7 +85,8 @@ public class Myorder extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Toast.makeText(Myorder.this, "Failed to load orders: " + error.getMessage(), Toast.LENGTH_LONG).show();
+                Log.e(TAG, "Error fetching orders: " + error.getMessage(), error.toException());
+                Toast.makeText(Myorder.this, "Failed to load orders", Toast.LENGTH_LONG).show();
             }
         });
     }

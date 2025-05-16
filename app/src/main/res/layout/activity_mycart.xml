@@ -120,12 +120,38 @@
                         android:textSize="16sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="4dp" />
+                    <TextView
+                        android:id="@+id/tvSneakers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👟 Sneakers: 0"
+                        android:textSize="16sp"
+                        android:textColor="#555555"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvLeatherShoes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👟 Leather Shoes: 0"
+                        android:textSize="16sp"
+                        android:textColor="#555555"
+                        android:layout_marginBottom="4dp" />
+
+                    <TextView
+                        android:id="@+id/tvSuedeShoes"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="👞 Suede Shoes: 0"
+                        android:textSize="16sp"
+                        android:textColor="#555555"
+                        android:layout_marginBottom="4dp" />
 
                     <TextView
                         android:id="@+id/tvTotalPieces"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="📊 Total Pieces: 5"
+                        android:text="📊 Total Pieces: 8"
                         android:textSize="16sp"
                         android:textColor="#555555"
                         android:layout_marginBottom="4dp" />

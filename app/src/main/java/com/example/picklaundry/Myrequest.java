@@ -5,15 +5,14 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 
+import android.Manifest;
 import android.content.pm.PackageManager;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.telephony.SmsManager;
 import android.util.Log;
 import android.view.View;
 import android.widget.TextView;
 import android.widget.Toast;
-import android.Manifest;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.database.*;
@@ -22,27 +21,47 @@ import java.util.*;
 
 public class Myrequest extends AppCompatActivity {
     private static final String TAG = "MyrequestActivity";
-    private TextView tvCategory, tvOrderId, tvPants, tvShirts, tvOthers, tvTotalPieces,
-            tvTotalPrice, tvAddress, tvEmail, tvGender, tvMobile, tvName, tvCancel;
-    private TextView tvIsConfirm, tvIsStored, tvIsDelivered, tvIsOutForDelivery, tvIsOutForPickup, tvIsPaymentDone;
+    private static final int SMS_PERMISSION_REQUEST_CODE = 1;
 
-    private DatabaseReference databaseReference,databaseReference2;
+    private TextView tvCategory, tvOrderId, tvPants, tvShirts, tvOthers, tvTotalPieces,
+            tvSneakers, tvLeatherShoes, tvSuedeShoes, tvTotalPrice, tvAddress, tvEmail,
+            tvGender, tvMobile, tvName, tvCancel, tvIsConfirm, tvIsStored, tvIsDelivered,
+            tvIsOutForDelivery, tvIsOutForPickup, tvIsPaymentDone;
+
     private FirebaseAuth auth;
+    private DatabaseReference databaseReference;
     private String currentUserId;
     private String latestOrderKey = null;
     private Map<String, Object> latestOrderData = new HashMap<>();
+    private String smsMessage = "", recipientMobile = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_myrequest);
 
-        // Initialize TextViews
+        initializeViews();
+
+        auth = FirebaseAuth.getInstance();
+        databaseReference = FirebaseDatabase.getInstance().getReference("Order_request");
+
+        if (auth.getCurrentUser() != null) {
+            currentUserId = auth.getCurrentUser().getUid();
+            fetchLatestOrder();
+        } else {
+            Log.e(TAG, "User not logged in.");
+        }
+    }
+
+    private void initializeViews() {
         tvCategory = findViewById(R.id.tvCategory);
         tvOrderId = findViewById(R.id.tvOrderId);
         tvPants = findViewById(R.id.tvPants);
         tvShirts = findViewById(R.id.tvShirts);
         tvOthers = findViewById(R.id.tvOthers);
+        tvSneakers = findViewById(R.id.tvSneakers);
+        tvLeatherShoes = findViewById(R.id.tvLeatherShoes);
+        tvSuedeShoes = findViewById(R.id.tvSuedeShoes);
         tvTotalPieces = findViewById(R.id.tvTotalPieces);
         tvTotalPrice = findViewById(R.id.tvTotalPrice);
         tvAddress = findViewById(R.id.tvAddress);
@@ -51,47 +70,35 @@ public class Myrequest extends AppCompatActivity {
         tvMobile = findViewById(R.id.tvMobile);
         tvName = findViewById(R.id.tvName);
         tvCancel = findViewById(R.id.tvCancel);
-
         tvIsConfirm = findViewById(R.id.tvOrderConfirmed);
         tvIsStored = findViewById(R.id.tvOrderSuccessful);
         tvIsDelivered = findViewById(R.id.tvDelivered);
         tvIsOutForDelivery = findViewById(R.id.tvOutForDelivery);
         tvIsOutForPickup = findViewById(R.id.tvOutForPickup);
         tvIsPaymentDone = findViewById(R.id.tvPaymentSuccessful);
-
-        auth = FirebaseAuth.getInstance();
-        databaseReference = FirebaseDatabase.getInstance().getReference("Order_request");
-        databaseReference2 = FirebaseDatabase.getInstance().getReference("Order_all");
-
-
-        if (auth.getCurrentUser() != null) {
-            currentUserId = auth.getCurrentUser().getUid();
-            fetchLatestOrder();
-
-        } else {
-            Log.e(TAG, "User not logged in.");
-        }
     }
 
     private void fetchLatestOrder() {
-        List<String> categories = Arrays.asList("DryCleanOrders", "IronOrders", "Washandfolds", "Washandiron");
+        List<String> categories = Arrays.asList("DryCleanOrders", "IronOrders", "Washandfolds", "Washandiron", "ShoeCleaningOrders");
+
 
         for (String category : categories) {
             DatabaseReference userCategoryRef = databaseReference.child(currentUserId).child(category);
-
             userCategoryRef.orderByKey().limitToLast(1).addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
                     for (DataSnapshot orderSnapshot : snapshot.getChildren()) {
-                        String orderId = orderSnapshot.getKey();
-                        latestOrderKey = orderId;
-
+                        latestOrderKey = orderSnapshot.getKey();
                         latestOrderData.clear();
+
                         latestOrderData.put("category", category);
-                        latestOrderData.put("orderId", orderId);
+                        latestOrderData.put("orderId", latestOrderKey);
                         latestOrderData.put("PantsQuantity", orderSnapshot.child("PantsQuantity").getValue(Integer.class));
                         latestOrderData.put("ShirtQuantity", orderSnapshot.child("ShirtQuantity").getValue(Integer.class));
                         latestOrderData.put("OthersQuantity", orderSnapshot.child("OthersQuantity").getValue(Integer.class));
+                        latestOrderData.put("Sneakers", orderSnapshot.child("SneakersQuantity").getValue(Integer.class));
+                        latestOrderData.put("LeatherShoes", orderSnapshot.child("LeatherShoesQuantity").getValue(Integer.class));
+                        latestOrderData.put("SuedeShoes", orderSnapshot.child("SuedeShoesQuantity").getValue(Integer.class));
                         latestOrderData.put("TotalPieces", orderSnapshot.child("TotalPieces").getValue(Integer.class));
                         latestOrderData.put("TotalPrice", orderSnapshot.child("TotalPrice").getValue(Integer.class));
                         latestOrderData.put("address", orderSnapshot.child("address").getValue(String.class));
@@ -122,6 +129,9 @@ public class Myrequest extends AppCompatActivity {
         tvPants.setText("Pants: " + latestOrderData.get("PantsQuantity"));
         tvShirts.setText("Shirts: " + latestOrderData.get("ShirtQuantity"));
         tvOthers.setText("Others: " + latestOrderData.get("OthersQuantity"));
+        tvSneakers.setText("Sneakers: " + latestOrderData.get("Sneakers"));
+        tvLeatherShoes.setText("Leather Shoes: " + latestOrderData.get("LeatherShoes"));
+        tvSuedeShoes.setText("Suede Shoes: " + latestOrderData.get("SuedeShoes"));
         tvTotalPieces.setText("Total Pieces: " + latestOrderData.get("TotalPieces"));
         tvTotalPrice.setText("Total Price: ₹" + latestOrderData.get("TotalPrice"));
         tvAddress.setText("Address: " + latestOrderData.get("address"));
@@ -138,19 +148,19 @@ public class Myrequest extends AppCompatActivity {
         statusRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                boolean isConfirmed = snapshot.child("isConfirm").getValue(Boolean.class) != null ? snapshot.child("isConfirm").getValue(Boolean.class) : false;
-                boolean isStored = snapshot.child("isStored").getValue(Boolean.class) != null ? snapshot.child("isStored").getValue(Boolean.class) : false;
-                boolean isOutForPickup = snapshot.child("isoutforpickup").getValue(Boolean.class) != null ? snapshot.child("isoutforpickup").getValue(Boolean.class) : false;
-                boolean isOutForDelivery = snapshot.child("isoutfordelivery").getValue(Boolean.class) != null ? snapshot.child("isoutfordelivery").getValue(Boolean.class) : false;
-                boolean isDelivered = snapshot.child("isdelivered").getValue(Boolean.class) != null ? snapshot.child("isdelivered").getValue(Boolean.class) : false;
-                boolean isPaymentDone = snapshot.child("ispaymentdone").getValue(Boolean.class) != null ? snapshot.child("ispaymentdone").getValue(Boolean.class) : false;
+                boolean isConfirmed = snapshot.child("isConfirm").getValue(Boolean.class) != null && snapshot.child("isConfirm").getValue(Boolean.class);
+                boolean isStored = snapshot.child("isStored").getValue(Boolean.class) != null && snapshot.child("isStored").getValue(Boolean.class);
+                boolean isOutForPickup = snapshot.child("isoutforpickup").getValue(Boolean.class) != null && snapshot.child("isoutforpickup").getValue(Boolean.class);
+                boolean isOutForDelivery = snapshot.child("isoutfordelivery").getValue(Boolean.class) != null && snapshot.child("isoutfordelivery").getValue(Boolean.class);
+                boolean isDelivered = snapshot.child("isdelivered").getValue(Boolean.class) != null && snapshot.child("isdelivered").getValue(Boolean.class);
+                boolean isPaymentDone = snapshot.child("ispaymentdone").getValue(Boolean.class) != null && snapshot.child("ispaymentdone").getValue(Boolean.class);
 
                 updateStatusUI(isConfirmed, isStored, isOutForPickup, isOutForDelivery, isDelivered, isPaymentDone);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e(TAG, "Database error: " + error.getMessage());
+                Log.e(TAG, "Status fetch error: " + error.getMessage());
             }
         });
     }
@@ -167,24 +177,16 @@ public class Myrequest extends AppCompatActivity {
     private void checkOrderDone() {
         if (latestOrderKey == null) return;
 
-        DatabaseReference orderDoneRef = FirebaseDatabase.getInstance()
-                .getReference("order_done").child(latestOrderKey);
-
+        DatabaseReference orderDoneRef = FirebaseDatabase.getInstance().getReference("order_done").child(latestOrderKey);
         orderDoneRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                if (snapshot.exists()) {
-                    // The order is already marked as done
-                    tvCancel.setVisibility(View.GONE);
-                } else {
-                    // The order is not done yet, allow cancel
-                    tvCancel.setVisibility(View.VISIBLE);
-                }
+                tvCancel.setVisibility(snapshot.exists() ? View.GONE : View.VISIBLE);
             }
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-                Log.e("OrderCheck", "Error checking order_done: " + error.getMessage());
+                Log.e(TAG, "Error checking order_done: " + error.getMessage());
             }
         });
     }
@@ -193,58 +195,40 @@ public class Myrequest extends AppCompatActivity {
         if (latestOrderKey != null && latestOrderData.containsKey("category")) {
             String category = latestOrderData.get("category").toString();
             String orderId = latestOrderKey;
-            String totalPieces = latestOrderData.get("TotalPieces").toString();
-            String totalPrice = latestOrderData.get("TotalPrice").toString();
-            String mobile = latestOrderData.get("mobile").toString();
+            String totalPieces = String.valueOf(latestOrderData.get("TotalPieces"));
+            String totalPrice = String.valueOf(latestOrderData.get("TotalPrice"));
+            recipientMobile = latestOrderData.get("mobile").toString();
 
-            // Prepare the SMS content
-            String smsMessage = "This is From PickLaundry. Your Order is canceling. Your category is: " + category +
-                    " and your order ID is: " + orderId +
-                    ". Total pieces: " + totalPieces +
-                    " and Total price: " + totalPrice;
+            smsMessage = "This is from PickLaundry. Your order has been cancelled.\nCategory: " + category +
+                    "\nOrder ID: " + orderId +
+                    "\nTotal Pieces: " + totalPieces +
+                    "\nTotal Price: ₹" + totalPrice;
 
-            // Check for SEND_SMS permission
-            if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
-                // Permission not granted, request permission
-                ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, 1);
-            } else {
-                // Permission granted, proceed with SMS sending
-                sendSMS(smsMessage, mobile);
-            }
+            // Delete order
+            FirebaseDatabase.getInstance().getReference("Order_request")
+                    .child(currentUserId).child(category).child(orderId).removeValue();
 
-            // Animation
-            tvCancel.animate().alpha(0f).setDuration(500).withEndAction(() -> {
-                Log.d(TAG, "Attempting to remove order from Firebase...");
-
-                // Remove from Order_request
-                databaseReference.child(currentUserId).child(category).child(orderId).removeValue()
-                        .addOnSuccessListener(aVoid -> {
-                            Log.d(TAG, "Order removed successfully.");
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Failed to remove order: " + e.getMessage());
-                        });
-                // Remove from Order_all
-                databaseReference2.child(currentUserId).child(category).child(orderId).removeValue()
-                        .addOnSuccessListener(aVoid -> {
-                            Log.d(TAG, "Order removed successfully.");
-                        })
-                        .addOnFailureListener(e -> {
-                            Log.e(TAG, "Failed to remove order: " + e.getMessage());
-                        });
-            });
+            // Send SMS
+            sendSMS();
         }
     }
 
-    private void sendSMS(String message, String phoneNumber) {
-        try {
+    private void sendSMS() {
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.SEND_SMS) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, new String[]{Manifest.permission.SEND_SMS}, SMS_PERMISSION_REQUEST_CODE);
+        } else {
             SmsManager smsManager = SmsManager.getDefault();
-            smsManager.sendTextMessage(phoneNumber, null, message, null, null);
-            Log.d(TAG, "SMS sent successfully");
-        } catch (Exception e) {
-            e.printStackTrace();
-            Log.e(TAG, "Failed to send SMS: " + e.getMessage(), e);
-            Toast.makeText(this, "Failed to send SMS", Toast.LENGTH_SHORT).show();
+            smsManager.sendTextMessage(recipientMobile, null, smsMessage, null, null);
+            Toast.makeText(this, "Cancellation SMS sent!", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        if (requestCode == SMS_PERMISSION_REQUEST_CODE && grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            sendSMS();
+        } else {
+            Toast.makeText(this, "SMS permission denied. Cannot send cancellation message.", Toast.LENGTH_SHORT).show();
         }
     }
 }
