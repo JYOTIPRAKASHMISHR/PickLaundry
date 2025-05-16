@@ -25,6 +25,9 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
+import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
 import java.io.IOException;
@@ -174,9 +177,20 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
             return;
         }
 
-        FirebaseDatabase.getInstance().getReference("address")
-                .push()
-                .setValue(address)
+        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
+        if (user == null) {
+            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        String userId = user.getUid();
+        DatabaseReference addressRef = FirebaseDatabase.getInstance()
+                .getReference("address")
+                .child(userId);
+
+        Log.d("SaveAddress", "Saving address for user: " + userId + ", value: " + address);
+
+        addressRef.push().setValue(address)
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Address Saved Successfully", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent(this, RegisterAtivity.class);
@@ -184,7 +198,7 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
                     finish();
                 })
                 .addOnFailureListener(e -> {
-                    Log.e(TAG, "Failed to save address: " + e.getMessage());
+                    Log.e("SaveAddress", "Failed to save address: " + e.getMessage());
                     Toast.makeText(this, "Failed to Save Address", Toast.LENGTH_SHORT).show();
                 });
     }

@@ -21,7 +21,7 @@
             app:cardCornerRadius="8dp"
             app:cardElevation="4dp"
             android:layout_margin="8dp"
-            app:cardBackgroundColor="@android:color/white"
+            app:cardBackgroundColor="@color/Emerald"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent">
@@ -53,6 +53,7 @@
                     android:id="@+id/menu_icon"
                     android:layout_width="32dp"
                     android:layout_height="32dp"
+                    android:background="@color/Emerald"
                     android:src="@drawable/ic_menu"
                     android:contentDescription="Menu"
                     android:clickable="true"
