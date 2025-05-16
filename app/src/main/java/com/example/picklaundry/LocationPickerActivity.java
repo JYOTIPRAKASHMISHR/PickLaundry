@@ -5,7 +5,6 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.location.Address;
 import android.location.Geocoder;
-import android.location.Location;
 import android.os.Bundle;
 import android.util.Log;
 import android.widget.Button;
@@ -25,8 +24,6 @@ import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
-import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 
@@ -177,18 +174,11 @@ public class LocationPickerActivity extends AppCompatActivity implements OnMapRe
             return;
         }
 
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-        if (user == null) {
-            Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        String userId = user.getUid();
+        // Save address directly under "address" node without user id
         DatabaseReference addressRef = FirebaseDatabase.getInstance()
-                .getReference("address")
-                .child(userId);
+                .getReference("address");
 
-        Log.d("SaveAddress", "Saving address for user: " + userId + ", value: " + address);
+        Log.d("SaveAddress", "Saving address: " + address);
 
         addressRef.push().setValue(address)
                 .addOnSuccessListener(unused -> {

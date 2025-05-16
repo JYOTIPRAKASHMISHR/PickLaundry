@@ -18,8 +18,9 @@ import android.widget.Toast;
 
 import com.google.android.material.textfield.TextInputEditText;
 import com.google.firebase.auth.FirebaseAuth;
-import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.*;
+import com.google.firebase.database.DataSnapshot;
+import com.google.firebase.database.DatabaseReference;
+import com.google.firebase.database.FirebaseDatabase;
 
 import java.util.Calendar;
 import java.util.HashMap;
@@ -27,38 +28,32 @@ import java.util.regex.Pattern;
 
 public class RegisterAtivity extends AppCompatActivity {
 
+    private static final String TAG = "RegisterAtivity";
+
     private TextInputEditText etName, etEmail, etMobile, etDOB, etLocation, etPassword, etConfirmPassword;
     private RadioGroup radioGroupGender;
     private Button btnRegister;
+    private Calendar calendar;
+    private int year, month, day;
+    private String gender = "";
 
     private FirebaseAuth mAuth;
     private DatabaseReference databaseReference, addressRef;
 
-    private static final int LOCATION_PICKER_REQUEST_CODE = 100;
-
-    private static final Pattern PASSWORD_PATTERN = Pattern.compile(
-            "^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{6,}$");
+    private static final Pattern PASSWORD_PATTERN =
+            Pattern.compile("^(?=.*[A-Z])(?=.*[a-z])(?=.*\\d)(?=.*[@#$%^&+=!]).{6,}$");
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_register_ativity);
 
-        initFirebase();
-        initViews();
-        setupDatePicker();
-        fetchSavedAddress();
-        setupLocationPicker();
-        setupRegisterButton();
-    }
+        Log.d(TAG, "onCreate: Initializing Firebase and views");
 
-    private void initFirebase() {
         mAuth = FirebaseAuth.getInstance();
         databaseReference = FirebaseDatabase.getInstance().getReference("Users");
         addressRef = FirebaseDatabase.getInstance().getReference("address");
-    }
 
-    private void initViews() {
         etName = findViewById(R.id.etName);
         etEmail = findViewById(R.id.etEmail);
         etMobile = findViewById(R.id.etMobile);
@@ -68,77 +63,66 @@ public class RegisterAtivity extends AppCompatActivity {
         etConfirmPassword = findViewById(R.id.etConfirmPassword);
         radioGroupGender = findViewById(R.id.radioGroupGender);
         btnRegister = findViewById(R.id.btnRegister);
-    }
 
-    private void setupDatePicker() {
+        calendar = Calendar.getInstance();
+        year = calendar.get(Calendar.YEAR);
+        month = calendar.get(Calendar.MONTH);
+        day = calendar.get(Calendar.DAY_OF_MONTH);
+
         etDOB.setOnClickListener(v -> {
-            Calendar calendar = Calendar.getInstance();
+            Log.d(TAG, "Opening DatePickerDialog for DOB");
             DatePickerDialog datePickerDialog = new DatePickerDialog(
                     RegisterAtivity.this,
-                    (view, year, month, dayOfMonth) -> etDOB.setText(dayOfMonth + "/" + (month + 1) + "/" + year),
-                    calendar.get(Calendar.YEAR),
-                    calendar.get(Calendar.MONTH),
-                    calendar.get(Calendar.DAY_OF_MONTH)
-            );
+                    (view, selectedYear, selectedMonth, selectedDay) ->
+                            etDOB.setText(selectedDay + "/" + (selectedMonth + 1) + "/" + selectedYear),
+                    year, month, day);
             datePickerDialog.show();
+        });
+
+        fetchSavedAddress();
+
+        etLocation.setOnClickListener(v -> {
+            Log.d(TAG, "Opening LocationPickerActivity");
+            Intent intent = new Intent(RegisterAtivity.this, LocationPickerActivity.class);
+            startActivityForResult(intent, 100);
+        });
+
+        btnRegister.setOnClickListener(v -> {
+            Log.d(TAG, "Register button clicked");
+            validateAndRegister();
         });
     }
 
     private void fetchSavedAddress() {
-        FirebaseUser user = FirebaseAuth.getInstance().getCurrentUser();
-
-        if (user == null) {
-            Log.e("FetchAddress", "User not logged in");
-            return;
-        }
-
-        String userId = user.getUid();
-        DatabaseReference addressRef = FirebaseDatabase.getInstance()
-                .getReference("address")
-                .child(userId);
-
-        Log.d("FetchAddress", "Fetching address for user: " + userId);
-
+        Log.d(TAG, "Fetching saved address from Firebase");
         addressRef.limitToLast(1).get().addOnCompleteListener(task -> {
             if (task.isSuccessful() && task.getResult().exists()) {
                 for (DataSnapshot snapshot : task.getResult().getChildren()) {
                     String savedAddress = snapshot.getValue(String.class);
-                    Log.d("FetchAddress", "Fetched address: " + savedAddress);
+                    Log.d(TAG, "Fetched address: " + savedAddress);
                     etLocation.setText(savedAddress);
                 }
             } else {
-                Log.d("FetchAddress", "No address found for user: " + userId);
+                Log.w(TAG, "No saved address found");
+                Toast.makeText(RegisterAtivity.this, "No saved address found", Toast.LENGTH_SHORT).show();
             }
-        });
-    }
-
-
-
-    private void setupLocationPicker() {
-        etLocation.setOnClickListener(v -> {
-            Intent intent = new Intent(RegisterAtivity.this, LocationPickerActivity.class);
-            startActivityForResult(intent, LOCATION_PICKER_REQUEST_CODE);
-        });
+        }).addOnFailureListener(e -> Log.e(TAG, "Error fetching address: " + e.getMessage()));
     }
 
     @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == LOCATION_PICKER_REQUEST_CODE && resultCode == RESULT_OK && data != null) {
+        Log.d(TAG, "onActivityResult called with requestCode: " + requestCode + ", resultCode: " + resultCode);
+        if (requestCode == 100 && resultCode == RESULT_OK && data != null) {
             String selectedLocation = data.getStringExtra("selected_location");
+            Log.d(TAG, "Location selected: " + selectedLocation);
             etLocation.setText(selectedLocation);
         }
     }
 
-    private void setupRegisterButton() {
-        btnRegister.setOnClickListener(v -> {
-            if (validateInputs()) {
-                registerUser();
-            }
-        });
-    }
+    private void validateAndRegister() {
+        Log.d(TAG, "Validating form inputs");
 
-    private boolean validateInputs() {
         String name = etName.getText().toString().trim();
         String email = etEmail.getText().toString().trim();
         String mobile = etMobile.getText().toString().trim();
@@ -147,71 +131,60 @@ public class RegisterAtivity extends AppCompatActivity {
         String password = etPassword.getText().toString().trim();
         String confirmPassword = etConfirmPassword.getText().toString().trim();
 
+        int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
+        if (selectedGenderId != -1) {
+            RadioButton selectedRadioButton = findViewById(selectedGenderId);
+            gender = selectedRadioButton.getText().toString();
+        }
+
         if (TextUtils.isEmpty(name)) {
             etName.setError("Name is required");
-            return false;
+            return;
         }
 
         if (TextUtils.isEmpty(email) || !Patterns.EMAIL_ADDRESS.matcher(email).matches()) {
             etEmail.setError("Valid email is required");
-            return false;
+            return;
         }
 
         if (TextUtils.isEmpty(mobile) || mobile.length() != 10) {
             etMobile.setError("Enter a valid 10-digit mobile number");
-            return false;
+            return;
         }
 
         if (TextUtils.isEmpty(dob)) {
             etDOB.setError("Date of Birth is required");
-            return false;
+            return;
         }
 
-        if (getSelectedGender().isEmpty()) {
+        if (TextUtils.isEmpty(gender)) {
             Toast.makeText(this, "Please select gender", Toast.LENGTH_SHORT).show();
-            return false;
+            return;
         }
 
         if (TextUtils.isEmpty(location)) {
             etLocation.setError("Location is required");
-            return false;
+            return;
         }
 
         if (!PASSWORD_PATTERN.matcher(password).matches()) {
-            etPassword.setError("Password must be at least 6 characters\nwith 1 uppercase, 1 lowercase, 1 digit, 1 special character.");
-            return false;
+            etPassword.setError("Password must contain:\n✔ At least 6 characters\n✔ 1 uppercase letter\n✔ 1 lowercase letter\n✔ 1 number\n✔ 1 special character");
+            return;
         }
 
         if (!password.equals(confirmPassword)) {
             etConfirmPassword.setError("Passwords do not match");
-            return false;
+            return;
         }
 
-        return true;
-    }
-
-    private String getSelectedGender() {
-        int selectedGenderId = radioGroupGender.getCheckedRadioButtonId();
-        if (selectedGenderId != -1) {
-            RadioButton selectedRadioButton = findViewById(selectedGenderId);
-            return selectedRadioButton.getText().toString();
-        }
-        return "";
-    }
-
-    private void registerUser() {
-        String name = etName.getText().toString().trim();
-        String email = etEmail.getText().toString().trim();
-        String mobile = etMobile.getText().toString().trim();
-        String dob = etDOB.getText().toString().trim();
-        String location = etLocation.getText().toString().trim();
-        String password = etPassword.getText().toString().trim();
-        String gender = getSelectedGender();
+        Log.i(TAG, "Validation passed. Creating user...");
 
         mAuth.createUserWithEmailAndPassword(email, password)
                 .addOnCompleteListener(task -> {
                     if (task.isSuccessful()) {
                         String userId = mAuth.getCurrentUser().getUid();
+                        Log.i(TAG, "User created with UID: " + userId);
+
                         HashMap<String, Object> userMap = new HashMap<>();
                         userMap.put("userId", userId);
                         userMap.put("name", name);
@@ -224,15 +197,20 @@ public class RegisterAtivity extends AppCompatActivity {
                         databaseReference.child(userId).setValue(userMap)
                                 .addOnCompleteListener(dbTask -> {
                                     if (dbTask.isSuccessful()) {
+                                        Log.i(TAG, "User data stored in database successfully");
                                         Toast.makeText(RegisterAtivity.this, "Registration Successful!", Toast.LENGTH_LONG).show();
                                         startActivity(new Intent(RegisterAtivity.this, LoginAtivity.class));
                                         finish();
                                     } else {
+                                        Log.e(TAG, "Failed to store user data");
                                         Toast.makeText(RegisterAtivity.this, "Failed to store data. Try again!", Toast.LENGTH_SHORT).show();
                                     }
                                 });
+
                     } else {
-                        Toast.makeText(RegisterAtivity.this, "Authentication Failed: " + task.getException().getMessage(), Toast.LENGTH_SHORT).show();
+                        String errorMessage = task.getException() != null ? task.getException().getMessage() : "Unknown error";
+                        Log.e(TAG, "Authentication failed: " + errorMessage);
+                        Toast.makeText(RegisterAtivity.this, "Authentication Failed: " + errorMessage, Toast.LENGTH_SHORT).show();
                     }
                 });
     }
