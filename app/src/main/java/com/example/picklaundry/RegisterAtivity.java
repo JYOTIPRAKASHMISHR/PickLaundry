@@ -198,9 +198,29 @@ public class RegisterAtivity extends AppCompatActivity {
                                 .addOnCompleteListener(dbTask -> {
                                     if (dbTask.isSuccessful()) {
                                         Log.i(TAG, "User data stored in database successfully");
+
+                                        // 👇 Delete the last saved address from 'address' node
+                                        addressRef.orderByKey().limitToLast(1)
+                                                .addListenerForSingleValueEvent(new com.google.firebase.database.ValueEventListener() {
+                                                    @Override
+                                                    public void onDataChange(@NonNull DataSnapshot snapshot) {
+                                                        for (DataSnapshot child : snapshot.getChildren()) {
+                                                            child.getRef().removeValue()
+                                                                    .addOnSuccessListener(unused -> Log.d(TAG, "Address removed after registration"))
+                                                                    .addOnFailureListener(e -> Log.e(TAG, "Failed to delete address: " + e.getMessage()));
+                                                        }
+                                                    }
+
+                                                    @Override
+                                                    public void onCancelled(@NonNull com.google.firebase.database.DatabaseError error) {
+                                                        Log.e(TAG, "Error while deleting address: " + error.getMessage());
+                                                    }
+                                                });
+
                                         Toast.makeText(RegisterAtivity.this, "Registration Successful!", Toast.LENGTH_LONG).show();
                                         startActivity(new Intent(RegisterAtivity.this, LoginAtivity.class));
                                         finish();
+
                                     } else {
                                         Log.e(TAG, "Failed to store user data");
                                         Toast.makeText(RegisterAtivity.this, "Failed to store data. Try again!", Toast.LENGTH_SHORT).show();
@@ -214,4 +234,5 @@ public class RegisterAtivity extends AppCompatActivity {
                     }
                 });
     }
+
 }

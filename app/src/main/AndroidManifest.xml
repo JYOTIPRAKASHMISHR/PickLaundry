@@ -64,7 +64,7 @@
         <!-- Google Maps API Key -->
         <meta-data
             android:name="com.google.android.geo.API_KEY"
-            android:value="AIzaSyBuPZ7K7xohSf3gWHP-tfoG1FVxtboZB2w" />
+            android:value="AIzaSyA893V82E72w6dCa-B86vp7s6Emffwba2U" />
 
         <activity android:name=".LocationPickerActivity"
             android:exported="false"
