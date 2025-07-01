@@ -43,10 +43,12 @@ public class Myorder extends AppCompatActivity {
     }
 
     private void setupFirebase() {
-        currentUserId = FirebaseAuth.getInstance().getCurrentUser() != null ?
-                FirebaseAuth.getInstance().getCurrentUser().getUid() : null;
+        FirebaseAuth auth = FirebaseAuth.getInstance();
 
-        if (currentUserId == null) {
+        if (auth.getCurrentUser() != null) {
+            currentUserId = auth.getCurrentUser().getUid();
+            Log.d(TAG, "UserID: " + currentUserId);
+        } else {
             Toast.makeText(this, "User not logged in", Toast.LENGTH_SHORT).show();
             finish();
             return;
@@ -62,6 +64,11 @@ public class Myorder extends AppCompatActivity {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 orderList.clear();
+
+                if (!snapshot.exists()) {
+                    Toast.makeText(Myorder.this, "No orders found", Toast.LENGTH_SHORT).show();
+                    return;
+                }
 
                 for (DataSnapshot categorySnapshot : snapshot.getChildren()) {
                     String category = categorySnapshot.getKey();

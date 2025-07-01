@@ -2,9 +2,21 @@
 <resources>
     <color name="black">#FF000000</color>
     <color name="white">#FFFFFFFF</color>
+    <color name="light_gray">#D3D3D3</color>
     <color name="gray">#A9A9A9</color>
     <color name="teal_700">#00796B</color>
     <color name="Emerald">#50C878</color>
     <color name="Blue">#87CEEB</color>
+    <color name="Blue1">#3BB0D6</color>
     <color name="Yellow">#FFFF00</color>
+    <color name="page">#12828D</color>
+    <color name="my_primary">#009688</color>              <!-- Your custom color -->
+    <color name="my_on_primary">#FFFFFF</color>
+    <color name="my_primary_container">#B2DFDB</color>
+    <color name="my_on_primary_container">#004D40</color>
+    <color name="regcolorcode">#B2DFDB</color>
+    <color name="maintopbar">#E0F2F1</color>
+<!--    <color name="logincolor"># 6ABECA</color>-->
+
+
 </resources>

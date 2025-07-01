@@ -4,87 +4,134 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:padding="20dp"
-    android:background="@color/white">
+    android:background="#F7F9FC"
+    android:padding="24dp">
 
-    <!-- Contact Us Title (Top Position) -->
-    <TextView
-        android:id="@+id/tvContactTitle"
-        android:layout_width="wrap_content"
+    <!-- Card Container -->
+    <androidx.cardview.widget.CardView
+        android:id="@+id/contactCard"
+        android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:text="Contact Us"
-        android:textSize="24sp"
-        android:textStyle="bold"
-        android:textColor="@color/black"
+        app:cardCornerRadius="24dp"
+        app:cardElevation="6dp"
+        android:layout_marginTop="40dp"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        android:layout_marginTop="20dp"/>
+        android:padding="24dp"
+        android:backgroundTint="@android:color/white">
 
-    <!-- Centered Group -->
-    <androidx.constraintlayout.widget.ConstraintLayout
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        app:layout_constraintTop_toBottomOf="@id/tvContactTitle"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent">
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
 
-        <!-- Support Email -->
-        <TextView
-            android:id="@+id/tvEmail"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Email: lipuhota1998@gmail.com"
-            android:textSize="16sp"
-            android:textColor="@color/black"
+            <!-- Mail Icon -->
+            <ImageView
+                android:id="@+id/mailIcon"
+                android:layout_width="60dp"
+                android:layout_height="60dp"
+                android:src="@drawable/emil1"
+                android:tint="@color/Blue1"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintEnd_toEndOf="parent"/>
 
-        <!-- Support Phone -->
-        <TextView
-            android:id="@+id/tvPhone"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Phone: +91 93374 25120"
-            android:textSize="16sp"
-            android:textColor="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/tvEmail"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="8dp"/>
+            <!-- Contact Us Title -->
+            <TextView
+                android:id="@+id/contactTitle"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Contact Us"
+                android:textSize="22sp"
+                android:textStyle="bold"
+                android:textColor="@color/black"
+                app:layout_constraintTop_toBottomOf="@id/mailIcon"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="16dp"/>
 
-        <!-- Message Input Field -->
-        <EditText
-            android:id="@+id/etMessage"
-            android:layout_width="0dp"
-            android:layout_height="120dp"
-            android:hint="Enter your message..."
-            android:textColor="@color/black"
-            android:background="@drawable/edit_text_bg"
-            android:padding="12dp"
-            android:textSize="16sp"
-            android:gravity="top|start"
-            android:textColorHint="@color/black"
-            app:layout_constraintTop_toBottomOf="@id/tvPhone"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            android:layout_marginTop="20dp"/>
+            <!-- Email Label -->
+            <TextView
+                android:id="@+id/emailLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Email"
+                android:textStyle="bold"
+                android:textColor="#666"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/contactTitle"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="24dp"/>
 
-        <!-- Send Button -->
-        <Button
-            android:id="@+id/btnSend"
-            android:layout_width="0dp"
-            android:layout_height="50dp"
-            android:text="Send Message"
-            android:backgroundTint="@color/Blue"
-            android:textColor="@color/white"
-            android:textSize="18sp"
-            android:layout_marginTop="20dp"
-            app:layout_constraintTop_toBottomOf="@id/etMessage"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"/>
-    </androidx.constraintlayout.widget.ConstraintLayout>
+            <!-- Email Value -->
+            <TextView
+                android:id="@+id/emailText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="lipuhota1998@gmail.com"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/emailLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="4dp"/>
 
+            <!-- Phone Label -->
+            <TextView
+                android:id="@+id/phoneLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="Phone"
+                android:textStyle="bold"
+                android:textColor="#666"
+                android:textSize="14sp"
+                app:layout_constraintTop_toBottomOf="@id/emailText"
+                app:layout_constraintStart_toStartOf="parent"
+                android:layout_marginTop="16dp"/>
+
+            <!-- Phone Value -->
+            <TextView
+                android:id="@+id/phoneText"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:text="+91 93374 25120"
+                android:textColor="@color/black"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/phoneLabel"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="4dp"/>
+
+            <!-- Message Box -->
+            <EditText
+                android:id="@+id/messageInput"
+                android:layout_width="0dp"
+                android:layout_height="120dp"
+                android:hint="Type your message here..."
+                android:background="@drawable/edit_text_bg"
+                android:textColor="@color/black"
+                android:gravity="top|start"
+                android:padding="12dp"
+                android:textSize="16sp"
+                app:layout_constraintTop_toBottomOf="@id/phoneText"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                android:layout_marginTop="24dp"/>
+
+            <!-- Send Button -->
+            <Button
+                android:id="@+id/sendButton"
+                android:layout_width="0dp"
+                android:layout_height="50dp"
+                android:text="Send Message"
+                android:textColor="@color/white"
+                android:backgroundTint="@color/Blue"
+                android:textSize="16sp"
+                android:layout_marginTop="16dp"
+                app:layout_constraintTop_toBottomOf="@id/messageInput"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintBottom_toBottomOf="parent"/>
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.cardview.widget.CardView>
 </androidx.constraintlayout.widget.ConstraintLayout>

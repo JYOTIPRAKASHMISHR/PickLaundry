@@ -24,7 +24,7 @@
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:background="@color/Emerald"
+            android:background="@color/my_primary"
             android:gravity="center"
             android:orientation="vertical"
             android:padding="16dp">
@@ -82,7 +82,7 @@
                 android:layout_width="24dp"
                 android:layout_height="24dp"
                 android:contentDescription="User Icon"
-                android:src="@drawable/profile1" />
+                android:src="@drawable/ic_profile" />
 
             <TextView
                 android:id="@+id/tvUserName1"

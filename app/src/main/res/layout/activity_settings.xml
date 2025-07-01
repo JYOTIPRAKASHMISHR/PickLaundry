@@ -79,7 +79,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:contentDescription="Home Icon"
-                    android:src="@drawable/home" />
+                    android:src="@drawable/ic_home" />
 
                 <TextView
                     android:layout_width="0dp"
@@ -222,7 +222,7 @@
                     android:layout_width="40dp"
                     android:layout_height="40dp"
                     android:contentDescription="Profile Icon"
-                    android:src="@drawable/profile1" />
+                    android:src="@drawable/ic_profile" />
 
                 <TextView
                     android:layout_width="0dp"

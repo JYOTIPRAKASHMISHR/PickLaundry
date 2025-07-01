@@ -1,11 +1,13 @@
 package com.example.picklaundry;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.view.GravityCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 
 import android.content.Intent;
 import android.os.Bundle;
+import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
@@ -27,48 +29,53 @@ public class MainActivity extends AppCompatActivity {
         navigationView = findViewById(R.id.navigation_view);
         menuIcon = findViewById(R.id.menu_icon);
 
-        // Set Click Listener for Menu Icon
+        // Open or Close Drawer on Menu Icon Click
         menuIcon.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!drawerLayout.isDrawerOpen(GravityCompat.END)) {
-                    drawerLayout.openDrawer(GravityCompat.END);
+                if (!drawerLayout.isDrawerOpen(GravityCompat.START)) {
+                    drawerLayout.openDrawer(GravityCompat.START);
                 } else {
-                    drawerLayout.closeDrawer(GravityCompat.END);
+                    drawerLayout.closeDrawer(GravityCompat.START);
                 }
             }
         });
 
-        // Handle Navigation Menu Clicks
+        // Navigation Menu Item Clicks
+        // Set icons (optional if already in XML)
+        Menu menu = navigationView.getMenu();
+        menu.findItem(R.id.nav_home).setIcon(R.drawable.ic_home);
+        menu.findItem(R.id.my_request).setIcon(R.drawable.ic_request);
+        menu.findItem(R.id.nav_orders).setIcon(R.drawable.ic_orders);
+        menu.findItem(R.id.nav_contact).setIcon(R.drawable.ic_contact);
+        menu.findItem(R.id.setting).setIcon(R.drawable.ic_settings);
+        menu.findItem(R.id.nav_profile).setIcon(R.drawable.ic_profile);
+
+// Navigation click listener
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
-            public boolean onNavigationItemSelected(MenuItem item) {
+            public boolean onNavigationItemSelected(@NonNull MenuItem item) {
                 int id = item.getItemId();
 
                 if (id == R.id.nav_profile) {
                     startActivity(new Intent(MainActivity.this, Profile.class));
                 } else if (id == R.id.nav_contact) {
                     startActivity(new Intent(MainActivity.this, Contact.class));
-                }
-                else if (id == R.id.nav_home) {
+                } else if (id == R.id.nav_home) {
                     startActivity(new Intent(MainActivity.this, MainActivity.class));
-                }
-                else if (id == R.id.my_request) {
+                } else if (id == R.id.my_request) {
                     startActivity(new Intent(MainActivity.this, Myrequest.class));
-                }
-                else if (id == R.id.nav_orders) {
+                } else if (id == R.id.nav_orders) {
                     startActivity(new Intent(MainActivity.this, Myorder.class));
-                }
-                else if (id == R.id.setting) {
-                    startActivity(new Intent(MainActivity.this, Settings
-                            .class));
+                } else if (id == R.id.setting) {
+                    startActivity(new Intent(MainActivity.this, Settings.class));
                 }
 
-                // Close drawer after selection
-                drawerLayout.closeDrawer(GravityCompat.END);
+                drawerLayout.closeDrawer(GravityCompat.START);
                 return true;
             }
         });
+
     }
 
     // Explicitly Defined Methods for XML Click Events
@@ -82,7 +89,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void washandiron(View view) {
         startActivity(new Intent(this, Firstwashandiron.class));
-
     }
 
     public void washabdfolds(View view) {

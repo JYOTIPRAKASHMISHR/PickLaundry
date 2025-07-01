@@ -4,21 +4,13 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.TextView;
-import android.widget.Toast;
-
+import android.widget.*;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
-import com.google.firebase.database.DataSnapshot;
-import com.google.firebase.database.DatabaseError;
-import com.google.firebase.database.DatabaseReference;
-import com.google.firebase.database.FirebaseDatabase;
-import com.google.firebase.database.ValueEventListener;
+import com.google.firebase.database.*;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -38,21 +30,25 @@ public class Contact extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_contact);
 
-        // Initialize Views
-        tvPhone = findViewById(R.id.tvPhone);
-        tvEmail = findViewById(R.id.tvEmail);
-        etMessage = findViewById(R.id.etMessage);
-        btnSend = findViewById(R.id.btnSend);
+        // Initialize views
+        tvPhone = findViewById(R.id.phoneText);
+        tvEmail = findViewById(R.id.emailText);
+        etMessage = findViewById(R.id.messageInput);
+        btnSend = findViewById(R.id.sendButton);
 
-        // Initialize Firebase
         auth = FirebaseAuth.getInstance();
         FirebaseUser user = auth.getCurrentUser();
         databaseReference = FirebaseDatabase.getInstance().getReference("Complaints");
 
+        // Set static contact info
+        final String supportEmail = "lipuhota1998@gmail.com";
+        final String supportPhone = "+91 93374 25120";
+        tvEmail.setText(supportEmail);
+        tvPhone.setText(supportPhone);
+
         if (user != null) {
             userReference = FirebaseDatabase.getInstance().getReference("Users").child(user.getUid());
 
-            // Fetch User Details
             userReference.addListenerForSingleValueEvent(new ValueEventListener() {
                 @Override
                 public void onDataChange(@NonNull DataSnapshot snapshot) {
@@ -65,29 +61,27 @@ public class Contact extends AppCompatActivity {
 
                 @Override
                 public void onCancelled(@NonNull DatabaseError error) {
-                    Toast.makeText(Contact.this, "Failed to fetch user data", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Contact.this, "Failed to load user info", Toast.LENGTH_SHORT).show();
                 }
             });
         }
 
-        // Phone Click Listener
+        // Phone dialer
         tvPhone.setOnClickListener(v -> {
-            String phoneNumber = "+9193374 25120";
-            Intent callIntent = new Intent(Intent.ACTION_DIAL);
-            callIntent.setData(Uri.parse("tel:" + phoneNumber));
-            startActivity(callIntent);
+            Intent intent = new Intent(Intent.ACTION_DIAL);
+            intent.setData(Uri.parse("tel:" + supportPhone.replaceAll(" ", "")));
+            startActivity(intent);
         });
 
-        // Email Click Listener
+        // Email client
         tvEmail.setOnClickListener(v -> {
-            String email = "lipuhota1998@gmail.com";
-            Intent emailIntent = new Intent(Intent.ACTION_SENDTO);
-            emailIntent.setData(Uri.parse("mailto:" + email));
-            emailIntent.putExtra(Intent.EXTRA_SUBJECT, "Support Request");
-            startActivity(Intent.createChooser(emailIntent, "Send Email"));
+            Intent intent = new Intent(Intent.ACTION_SENDTO);
+            intent.setData(Uri.parse("mailto:" + supportEmail));
+            intent.putExtra(Intent.EXTRA_SUBJECT, "Support Request");
+            startActivity(Intent.createChooser(intent, "Send email via"));
         });
 
-        // Send Button Click Listener
+        // Send button click
         btnSend.setOnClickListener(v -> submitComplaint());
     }
 
@@ -100,31 +94,28 @@ public class Contact extends AppCompatActivity {
         }
 
         if (userName == null || userEmail == null || userPhone == null) {
-            Toast.makeText(this, "User details not available", Toast.LENGTH_SHORT).show();
+            Toast.makeText(this, "User information not loaded", Toast.LENGTH_SHORT).show();
             return;
         }
 
         String complaintId = databaseReference.push().getKey();
         String timestamp = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault()).format(new Date());
 
-        // Create a Complaint object with user details
         Complaint complaint = new Complaint(complaintId, userName, userEmail, userPhone, message, timestamp);
 
-        // Store complaint in Firebase
         databaseReference.child(complaintId).setValue(complaint)
                 .addOnSuccessListener(aVoid -> {
-                    Toast.makeText(Contact.this, "Complaint submitted successfully", Toast.LENGTH_SHORT).show();
+                    Toast.makeText(Contact.this, "Message sent successfully", Toast.LENGTH_SHORT).show();
                     etMessage.setText("");
                 })
-                .addOnFailureListener(e -> Toast.makeText(Contact.this, "Failed to submit complaint", Toast.LENGTH_SHORT).show());
+                .addOnFailureListener(e -> Toast.makeText(Contact.this, "Failed to send message", Toast.LENGTH_SHORT).show());
     }
 
-    // Complaint Model Class
+    // Firebase model class
     public static class Complaint {
         public String complaintId, name, email, mobile, message, timestamp;
 
         public Complaint() {
-            // Default constructor required for Firebase
         }
 
         public Complaint(String complaintId, String name, String email, String mobile, String message, String timestamp) {

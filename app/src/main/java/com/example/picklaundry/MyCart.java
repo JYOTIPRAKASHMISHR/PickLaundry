@@ -98,7 +98,7 @@ public class MyCart extends AppCompatActivity {
             public void onDataChange(@NonNull DataSnapshot snapshot) {
                 if (!snapshot.exists()) return;
 
-                tvCategory.setText("📌 Category: " + category);
+                tvCategory.setText("Category: " + category);
                 tvOrderId.setText("📦 Order ID: " + orderId);
                 tvPants.setText("👖 Pants: " + snapshot.child("PantsQuantity").getValue(Integer.class));
                 tvShirts.setText("👕 Shirts: " + snapshot.child("ShirtQuantity").getValue(Integer.class));
@@ -108,8 +108,8 @@ public class MyCart extends AppCompatActivity {
                 tvSuedeShoes.setText("👞 SuedeShoes: " + snapshot.child("SuedeShoesQuantity").getValue(Integer.class));
 
                 tvTotalPieces.setText("📊 Total Pieces: " + snapshot.child("TotalPieces").getValue(Integer.class));
-                tvTotalPrice.setText("💰 Total Price: ₹" + snapshot.child("TotalPrice").getValue(Integer.class));
-                tvAddress.setText("📍 Address:\n" + snapshot.child("address").getValue(String.class));
+                tvTotalPrice.setText("Total Price: ₹" + snapshot.child("TotalPrice").getValue(Integer.class));
+                tvAddress.setText("🏠 Address:\n" + snapshot.child("address").getValue(String.class));
                 tvEmail.setText("📧 Email: " + snapshot.child("email").getValue(String.class));
                 tvGender.setText("👤 Gender: " + snapshot.child("gender").getValue(String.class));
                 tvMobile.setText("📱 Mobile: " + snapshot.child("mobile").getValue(String.class));

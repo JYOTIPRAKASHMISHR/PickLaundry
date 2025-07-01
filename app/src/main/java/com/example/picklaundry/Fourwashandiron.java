@@ -86,16 +86,19 @@ public class Fourwashandiron extends AppCompatActivity {
 
     private void displayOrderDetails(DataSnapshot orderSnapshot) {
         orderIdText.setText("Order ID: " + latestOrderId);
-        nameText.setText(getValue(orderSnapshot, "name"));
-        emailText.setText(getValue(orderSnapshot, "email"));
-        mobileText.setText(getValue(orderSnapshot, "mobile"));
-        addressText.setText(getValue(orderSnapshot, "address"));
-        genderText.setText(getValue(orderSnapshot, "gender"));
-        shirtQuantity.setText(getValue(orderSnapshot, "ShirtQuantity"));
+        nameText.setText("👤 Name: " + getValue(orderSnapshot, "name"));
+        emailText.setText("📧 Email: " + getValue(orderSnapshot, "email"));
+        mobileText.setText("📱 Mobile: " + getValue(orderSnapshot, "mobile"));
+        addressText.setText("🏠 Address: " + getValue(orderSnapshot, "address"));
+        genderText.setText("🚻 Gender: " + getValue(orderSnapshot, "gender"));
+
+        shirtQuantity.setText( getValue(orderSnapshot, "ShirtQuantity"));
         pantsQuantity.setText(getValue(orderSnapshot, "PantsQuantity"));
-        othersQuantity.setText(getValue(orderSnapshot, "OthersQuantity"));
+        othersQuantity.setText(  getValue(orderSnapshot, "OthersQuantity"));
+
         totalPieces.setText(getValue(orderSnapshot, "TotalPieces"));
-        totalPrice.setText("₹" + getValue(orderSnapshot, "TotalPrice"));
+        totalPrice.setText( getValue(orderSnapshot, "TotalPrice"));
+
     }
 
     private String getValue(DataSnapshot snapshot, String key) {
