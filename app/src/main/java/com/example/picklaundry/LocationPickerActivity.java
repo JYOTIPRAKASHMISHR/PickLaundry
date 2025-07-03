@@ -114,9 +114,22 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
                 List<Address> addresses = geocoder.getFromLocation(lat, lng, 1);
                 if (addresses != null && !addresses.isEmpty()) {
                     Address address = addresses.get(0);
-                    String fullAddress = address.getAddressLine(0);
-                    Log.d(TAG, "Address: " + fullAddress);
-                    saveAddressToFirebase(fullAddress);
+
+                    AddressModel model = new AddressModel(
+                            address.getAddressLine(0),
+                            address.getFeatureName(),      // Building or flat name
+                            address.getThoroughfare(),     // Street name
+                            address.getSubLocality(),      // Area
+                            address.getLocality(),         // City
+                            address.getAdminArea(),        // State
+                            address.getCountryName(),
+                            address.getPostalCode(),
+                            lat,
+                            lng
+                    );
+
+                    Log.d(TAG, "Address: " + model.fullAddress);
+                    saveAddressToFirebase(model);
                 } else {
                     Toast.makeText(this, "No address found", Toast.LENGTH_SHORT).show();
                 }
@@ -129,18 +142,18 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
         }
     }
 
-    private void saveAddressToFirebase(String address) {
-        if (address == null || address.isEmpty()) {
+    private void saveAddressToFirebase(AddressModel model) {
+        if (model == null || model.fullAddress == null || model.fullAddress.isEmpty()) {
             Toast.makeText(this, "Invalid address", Toast.LENGTH_SHORT).show();
             return;
         }
 
         DatabaseReference addressRef = FirebaseDatabase.getInstance().getReference("address");
-        addressRef.push().setValue(address)
+        addressRef.push().setValue(model)
                 .addOnSuccessListener(unused -> {
                     Toast.makeText(this, "Address saved", Toast.LENGTH_SHORT).show();
                     Intent intent = new Intent();
-                    intent.putExtra("selected_location", address);
+                    intent.putExtra("selected_location", model.fullAddress);
                     setResult(RESULT_OK, intent);
                     finish();
                 })
@@ -165,6 +178,38 @@ public class LocationPickerActivity extends FragmentActivity implements OnMapRea
             } else {
                 Toast.makeText(this, "Location permission is required", Toast.LENGTH_SHORT).show();
             }
+        }
+    }
+
+    // ✅ Updated Address Model (nested)
+    public static class AddressModel {
+        public String fullAddress;
+        public String buildingName;
+        public String street;
+        public String area;
+        public String city;
+        public String state;
+        public String country;
+        public String postalCode;
+        public double latitude;
+        public double longitude;
+
+        public AddressModel() {}
+
+        public AddressModel(String fullAddress, String buildingName, String street,
+                            String area, String city, String state,
+                            String country, String postalCode,
+                            double latitude, double longitude) {
+            this.fullAddress = fullAddress;
+            this.buildingName = buildingName;
+            this.street = street;
+            this.area = area;
+            this.city = city;
+            this.state = state;
+            this.country = country;
+            this.postalCode = postalCode;
+            this.latitude = latitude;
+            this.longitude = longitude;
         }
     }
 }
